@@ -1,0 +1,178 @@
+[
+  {
+    "idx": 1,
+    "name": "WhatsApp Image 2026-08-20 at 2.14.23 PM.jpeg",
+    "path": "C:\\Users\\MAHAD M\\Desktop\\CUSTOME JEWELY\\WhatsApp Image 2026-08-20 at 2.14.23 PM.jpeg",
+    "width": 540,
+    "height": 1200,
+    "sha256": "da9756c8222660024e4bdcdf6dba3bc278779cae46b519eb5787977956b2030b",
+    "dhash": "4200c3ccbc330800",
+    "cluster": 1,
+    "cluster_size": 1
+  },
+  {
+    "idx": 2,
+    "name": "WhatsApp Image 2026-08-20 at 2.16.26 PM.jpeg",
+    "path": "C:\\Users\\MAHAD M\\Desktop\\CUSTOME JEWELY\\WhatsApp Image 2026-08-20 at 2.16.26 PM.jpeg",
+    "width": 1280,
+    "height": 1280,
+    "sha256": "833e8d3699faf9baa77ff55df43b24543aedd3629fa527e5d09b949fa63cf83b",
+    "dhash": "61c9c0e09899996a",
+    "cluster": 2,
+    "cluster_size": 1
+  },
+  {
+    "idx": 3,
+    "name": "WhatsApp Image 2026-08-20 at 2.16.52 PM (1).jpeg",
+    "path": "C:\\Users\\MAHAD M\\Desktop\\CUSTOME JEWELY\\WhatsApp Image 2026-08-20 at 2.16.52 PM (1).jpeg",
+    "width": 810,
+    "height": 1080,
+    "sha256": "a4e6f64cd85c269b8469b85fd6a97a8738f57611e02054f25a25b6c2cfe0511c",
+    "dhash": "2d2dcdb179e18f3f",
+    "cluster": 3,
+    "cluster_size": 1
+  },
+  {
+    "idx": 4,
+    "name": "WhatsApp Image 2026-08-20 at 2.16.52 PM (2).jpeg",
+    "path": "C:\\Users\\MAHAD M\\Desktop\\CUSTOME JEWELY\\WhatsApp Image 2026-08-20 at 2.16.52 PM (2).jpeg",
+    "width": 810,
+    "height": 1080,
+    "sha256": "9b6f1d47777c09042316ea81e8dda2cb757c2977e9d0a57571eab39ffffdb82d",
+    "dhash": "0d258d3171e0cc99",
+    "cluster": 4,
+    "cluster_size": 1
+  },
+  {
+    "idx": 5,
+    "name": "WhatsApp Image 2026-08-20 at 2.16.52 PM.jpeg",
+    "path": "C:\\Users\\MAHAD M\\Desktop\\CUSTOME JEWELY\\WhatsApp Image 2026-08-20 at 2.16.52 PM.jpeg",
+    "width": 810,
+    "height": 1080,
+    "sha256": "6038f709ba1a8e43a8c43b2d215737ab9b54d129020a0f7ba2a405a1eeffa410",
+    "dhash": "9a934c85310f8323",
+    "cluster": 5,
+    "cluster_size": 1
+  },
+  {
+    "idx": 6,
+    "name": "WhatsApp Image 2026-08-20 at 2.16.53 PM (1).jpeg",
+    "path": "C:\\Users\\MAHAD M\\Desktop\\CUSTOME JEWELY\\WhatsApp Image 2026-08-20 at 2.16.53 PM (1).jpeg",
+    "width": 810,
+    "height": 1080,
+    "sha256": "a8a8ead2f50e6d2ff4155a39bcd2b32aabf72ec01db703f6d7a8942d9e9747a5",
+    "dhash": "38f0cc48400920f0",
+    "cluster": 6,
+    "cluster_size": 1
+  },
+  {
+    "idx": 7,
+    "name": "WhatsApp Image 2026-08-20 at 2.16.53 PM.jpeg",
+    "path": "C:\\Users\\MAHAD M\\Desktop\\CUSTOME JEWELY\\WhatsApp Image 2026-08-20 at 2.16.53 PM.jpeg",
+    "width": 810,
+    "height": 1080,
+    "sha256": "52046470a0e88271d07b68bec4e527e6884ac5f4881bf0d7519140613b04b39d",
+    "dhash": "1525b57968506467",
+    "cluster": 7,
+    "cluster_size": 1
+  },
+  {
+    "idx": 8,
+    "name": "WhatsApp Image 2026-08-20 at 2.16.55 PM (1).jpeg",
+    "path": "C:\\Users\\MAHAD M\\Desktop\\CUSTOME JEWELY\\WhatsApp Image 2026-08-20 at 2.16.55 PM (1).jpeg",
+    "width": 810,
+    "height": 1080,
+    "sha256": "dae548e48b6e0d54b41f2eebdf0ef501d374ced27f97908810f5e3e838ae8768",
+    "dhash": "490b02696868342c",
+    "cluster": 8,
+    "cluster_size": 1
+  },
+  {
+    "idx": 9,
+    "name": "WhatsApp Image 2026-08-20 at 2.16.55 PM.jpeg",
+    "path": "C:\\Users\\MAHAD M\\Desktop\\CUSTOME JEWELY\\WhatsApp Image 2026-08-20 at 2.16.55 PM.jpeg",
+    "width": 810,
+    "height": 1080,
+    "sha256": "a528d2d7bcff7f432e19ef6af8be0bb4111a062b64b2dca17857a013b62eb796",
+    "dhash": "13069c07700e0301",
+    "cluster": 9,
+    "cluster_size": 1
+  },
+  {
+    "idx": 10,
+    "name": "WhatsApp Image 2026-08-20 at 2.20.58 PM.jpeg",
+    "path": "C:\\Users\\MAHAD M\\Desktop\\CUSTOME JEWELY\\WhatsApp Image 2026-08-20 at 2.20.58 PM.jpeg",
+    "width": 960,
+    "height": 1280,
+    "sha256": "ab423180d02229c59d7a86a13d91e11501064a0068b00fe61f6e9e3a9713469d",
+    "dhash": "3f2d2d2f696b2dae",
+    "cluster": 10,
+    "cluster_size": 1
+  },
+  {
+    "idx": 11,
+    "name": "WhatsApp Image 2026-08-20 at 2.21.21 PM (1).jpeg",
+    "path": "C:\\Users\\MAHAD M\\Desktop\\CUSTOME JEWELY\\WhatsApp Image 2026-08-20 at 2.21.21 PM (1).jpeg",
+    "width": 960,
+    "height": 1280,
+    "sha256": "8d97de23f936a5fc5cb8a680c1bd139a5ecf8ef22fdc457b4985db85b820815e",
+    "dhash": "9283c3e3cda37c3c",
+    "cluster": 11,
+    "cluster_size": 1
+  },
+  {
+    "idx": 12,
+    "name": "WhatsApp Image 2026-08-20 at 2.21.21 PM.jpeg",
+    "path": "C:\\Users\\MAHAD M\\Desktop\\CUSTOME JEWELY\\WhatsApp Image 2026-08-20 at 2.21.21 PM.jpeg",
+    "width": 1280,
+    "height": 960,
+    "sha256": "c0994d085e97308a444f1aa4338683e7f3c7e6ea053afad9e86e95e0311cb879",
+    "dhash": "db1bb66c49787237",
+    "cluster": 12,
+    "cluster_size": 1
+  },
+  {
+    "idx": 13,
+    "name": "WhatsApp Image 2026-08-20 at 2.21.22 PM (1).jpeg",
+    "path": "C:\\Users\\MAHAD M\\Desktop\\CUSTOME JEWELY\\WhatsApp Image 2026-08-20 at 2.21.22 PM (1).jpeg",
+    "width": 960,
+    "height": 1280,
+    "sha256": "f66353a19fd1de0e3f5214f64aa4a031606476613ce8c8d0da0aa77018e78d9c",
+    "dhash": "6968ecb4151c1c5e",
+    "cluster": 13,
+    "cluster_size": 1
+  },
+  {
+    "idx": 14,
+    "name": "WhatsApp Image 2026-08-20 at 2.21.22 PM.jpeg",
+    "path": "C:\\Users\\MAHAD M\\Desktop\\CUSTOME JEWELY\\WhatsApp Image 2026-08-20 at 2.21.22 PM.jpeg",
+    "width": 960,
+    "height": 1280,
+    "sha256": "adad5427f06aa49c4492d641c94b230af40b2577512941dd0d887fc2df86a158",
+    "dhash": "22e23d09c2040000",
+    "cluster": 14,
+    "cluster_size": 1
+  },
+  {
+    "idx": 15,
+    "name": "WhatsApp Image 2026-08-20 at 2.21.23 PM (1).jpeg",
+    "path": "C:\\Users\\MAHAD M\\Desktop\\CUSTOME JEWELY\\WhatsApp Image 2026-08-20 at 2.21.23 PM (1).jpeg",
+    "width": 960,
+    "height": 1280,
+    "sha256": "179d0e67d5dc42aa742313fff9e6cc7dc7c2f8e77a0b8727b5e2a01e6c3d5d51",
+    "dhash": "b8a0ace8e6b00901",
+    "cluster": 15,
+    "cluster_size": 1
+  },
+  {
+    "idx": 16,
+    "name": "WhatsApp Image 2026-08-20 at 2.21.23 PM.jpeg",
+    "path": "C:\\Users\\MAHAD M\\Desktop\\CUSTOME JEWELY\\WhatsApp Image 2026-08-20 at 2.21.23 PM.jpeg",
+    "width": 1280,
+    "height": 960,
+    "sha256": "995a1b1f1c18aa117fc925d8e66072fa972da44fcc4362c031fc899d0cbd2fc3",
+    "dhash": "6341912c64c82818",
+    "cluster": 16,
+    "cluster_size": 1
+  }
+]

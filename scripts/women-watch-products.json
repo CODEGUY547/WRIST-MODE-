@@ -1,0 +1,85 @@
+[
+  {
+    "name": "Ladies Luxury Full Gift Set Collection",
+    "collection": "Full Gift Sets",
+    "colorOptions": "Teal, gold, rose gold, black, silver, green",
+    "included": "Watch, necklace, earrings, bracelet or ring depending on set",
+    "description": "Full ladies gift boxes with a watch and matching jewelry pieces for birthdays, introductions, anniversaries, and premium gifting.",
+    "indices": [1, 5, 7, 13, 14, 20, 49, 54, 96, 98, 99],
+    "featured": true
+  },
+  {
+    "name": "Compact Ladies Watch Gift Sets",
+    "collection": "Full Gift Sets",
+    "colorOptions": "Burgundy, black, rose gold, gold, white, red",
+    "included": "Watch with necklace, bracelet, or earrings depending on box",
+    "description": "Compact women watch gift sets for customers who want a ready-to-present box with matching accessories.",
+    "indices": [2, 4, 22, 29, 32, 95, 100],
+    "featured": true
+  },
+  {
+    "name": "Rose Gold Bracelet Watch Sets",
+    "collection": "Bracelet Watch Sets",
+    "colorOptions": "Rose gold, blush, silver rose, pearl accents",
+    "included": "Watch with bracelet or bangle",
+    "description": "Rose gold and blush bracelet watch sets with soft feminine styling and gift-ready presentation.",
+    "indices": [3, 8, 9, 15, 16, 25, 26, 28, 39, 42, 51, 78],
+    "featured": true
+  },
+  {
+    "name": "Gold Bracelet Watch Sets",
+    "collection": "Bracelet Watch Sets",
+    "colorOptions": "Gold, green, white, black, two-tone",
+    "included": "Watch with bracelet or bangle",
+    "description": "Gold-tone ladies bracelet watch sets in several dial colors and strap styles.",
+    "indices": [12, 17, 18, 19, 21, 27, 30, 31, 33, 36, 38, 43]
+  },
+  {
+    "name": "Silver Bracelet Watch Sets",
+    "collection": "Bracelet Watch Sets",
+    "colorOptions": "Silver, pink, white, black, two-tone",
+    "included": "Watch with bracelet or bangle",
+    "description": "Silver ladies watch-and-bracelet sets for everyday styling and simple gifting.",
+    "indices": [23, 24, 34, 35, 40, 45, 63, 64, 65, 67, 69, 76, 79, 90]
+  },
+  {
+    "name": "Boxed Color Bracelet Watch Sets",
+    "collection": "Bracelet Watch Sets",
+    "colorOptions": "Gold, rose gold, black, white, silver",
+    "included": "Watch with bracelet in a presentation box",
+    "description": "Boxed bracelet watch families where the same gift style is available in different colors.",
+    "indices": [52, 53, 56, 57, 58, 59, 66, 68, 72, 73, 77, 80, 81]
+  },
+  {
+    "name": "Charm Bracelet Watch Sets",
+    "collection": "Bracelet Watch Sets",
+    "colorOptions": "Star, slim bracelet, rose gold",
+    "included": "Watch with charm bracelet or bangle",
+    "description": "Ladies watch sets with charm-style bracelet details for customers who want a more playful accessory look.",
+    "indices": [41, 62, 94]
+  },
+  {
+    "name": "Plain Ladies Watch Collection",
+    "collection": "Plain Watches",
+    "colorOptions": "Gold, black, pink, white, two-tone",
+    "included": "Watch only",
+    "description": "Plain ladies watches shown without extra jewelry, grouped by dial and strap color options.",
+    "indices": [6, 11, 47, 48, 74, 75, 82, 83, 84, 85, 87, 88, 89, 91, 93]
+  },
+  {
+    "name": "Plain Leather Strap Ladies Watches",
+    "collection": "Plain Watches",
+    "colorOptions": "Brown, black, green, beige, pink",
+    "included": "Watch only",
+    "description": "Plain ladies leather-strap watches for customers who prefer a simple, clean watch without jewelry extras.",
+    "indices": [10, 37, 44, 46, 60, 61, 70, 71, 86, 92, 97]
+  },
+  {
+    "name": "Classic Watch Pair Sets",
+    "collection": "Plain Watches",
+    "colorOptions": "Black and gold, twin pair",
+    "included": "Two watches",
+    "description": "Classic paired watch options for customers who want matching or complementary watches.",
+    "indices": [50, 55]
+  }
+]
