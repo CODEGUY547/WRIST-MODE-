@@ -4,9 +4,9 @@
   "description": "Dynamic storefront and admin dashboard for Wrist Mode watches and customized jewelry.",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node -r dotenv/config server-supabase.js",
     "dev": "node server.js",
-    "check": "node --check server.js && node --check public/app.js",
+    "check": "node --check server.js && node --check server-supabase.js && node --check public/app.js",
     "smoke": "node scripts/smoke-test.js",
     "smoke:mobile": "node scripts/mobile-smoke.js",
     "smoke:api": "node scripts/api-smoke.js",
@@ -17,9 +17,12 @@
     "catalog:import-special-products": "node scripts/import-special-products.js",
     "catalog:prepare-women-watches": "python scripts/prepare-women-watch-contact-sheets.py && python scripts/prepare-women-watch-assets.py",
     "catalog:import-women-watches": "node scripts/import-women-watch-products.js",
-    "catalog:import-sept-2026-assets": "python scripts/import-sept-2026-assets.py"
+    "catalog:import-sept-2026-assets": "python scripts/import-sept-2026-assets.py",
+    "migrate:supabase": "node -r dotenv/config scripts/migrate-to-supabase.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.115.0",
+    "dotenv": "^17.4.2",
     "express": "^4.19.2",
     "multer": "^2.0.2",
     "sql.js": "^1.10.3",

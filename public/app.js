@@ -389,6 +389,7 @@ const heroSlides = [
 const state = {
   view: "home",
   heroSlide: 0,
+  mobileMenuOpen: false,
   products: [],
   brands: [],
   cart: loadCart(),
@@ -402,6 +403,10 @@ const state = {
   catalogLimit: 24,
   editingProductId: null,
   jewelryChoice: null,
+  braceletFinish: "Gold",
+  braceletStyle: "classic",
+  customCollection: "bracelet",
+  barFinish: "Gold",
   admin: {
     isAdmin: false,
     tab: "overview",
@@ -483,6 +488,38 @@ function imageFor(product) {
 
 function imageListFor(product) {
   return Array.isArray(product?.images) ? product.images.filter(Boolean) : [];
+}
+
+function isWatchInquiry(product) {
+  return ["watch", "women", "wooden"].includes(product?.category);
+}
+
+function productCode(product) {
+  return `WM-${String(product?.category || "item").toUpperCase()}-${product?.id || ""}`;
+}
+
+function productShareUrl(product) {
+  return `${window.location.origin}/share/product/${encodeURIComponent(product.id)}`;
+}
+
+function watchInquiryUrl(product) {
+  const message = [
+    "Hello Wrist Mode, I would like to inquire about this watch:",
+    `Watch: ${product.name}`,
+    `Brand: ${product.brand}`,
+    `Product ID: ${productCode(product)}`,
+    `Stock: ${product.stockStatus}`,
+    "",
+    `Watch picture: ${productShareUrl(product)}`,
+  ].join("\n");
+  return `https://wa.me/256750668419?text=${encodeURIComponent(message)}`;
+}
+
+function inquiryAction(product) {
+  if (isWatchInquiry(product)) {
+    return `<a class="primary-button" href="${attr(watchInquiryUrl(product))}" target="_blank" rel="noreferrer">Ask on WhatsApp</a>`;
+  }
+  return `<button class="primary-button" data-view="contact">Enquire</button>`;
 }
 
 function slugify(value = "") {
@@ -627,6 +664,7 @@ async function loadAdminData() {
 async function setView(view) {
   if (view !== state.view && ["watches", "jewelry", "wooden", "women"].includes(view)) state.catalogLimit = 24;
   state.view = view;
+  state.mobileMenuOpen = false;
   if (view === "admin" && state.admin.isAdmin) await loadAdminData();
   render();
   appEl.focus({ preventScroll: true });
@@ -639,6 +677,12 @@ function render() {
   document.querySelectorAll("[data-view]").forEach((button) => {
     button.classList.toggle("active", button.dataset.view === state.view);
   });
+  document.body.classList.toggle("menu-open", state.mobileMenuOpen);
+  const menuButton = document.querySelector("[data-menu-toggle]");
+  if (menuButton) {
+    menuButton.setAttribute("aria-expanded", String(state.mobileMenuOpen));
+    menuButton.setAttribute("aria-label", state.mobileMenuOpen ? "Close navigation menu" : "Open navigation menu");
+  }
 
   const renderers = {
     home: renderHome,
@@ -654,6 +698,7 @@ function render() {
   };
 
   appEl.innerHTML = (renderers[state.view] || renderHome)();
+  document.body.classList.toggle("home-page", state.view === "home");
   renderCart();
   if (state.view === "home") startHeroCarousel();
   if (state.view === "customize") updateCustomPreview(appEl.querySelector("#customForm"), { immediate: true });
@@ -676,32 +721,20 @@ function normalizedHeroSlide(index) {
 }
 
 function renderHeroCarousel() {
-  const activeIndex = normalizedHeroSlide(state.heroSlide);
   return `
-    <section class="hero hero-carousel" data-hero-carousel>
-      <div class="hero-media" aria-hidden="true">
-        ${heroSlides
-          .map(
-            (slide, index) => `<img class="${index === activeIndex ? "active" : ""}" data-hero-bg="${index}" src="${attr(slide.image)}" alt="" loading="${index === activeIndex ? "eager" : "lazy"}" decoding="async" />`,
-          )
-          .join("")}
-      </div>
-      <div class="hero-content hero-content-clean">
-        <div class="hero-copy">
-          <img class="hero-logo" src="/assets/wrist-mode-mark.png" alt="Wrist Mode logo" />
-          <p class="eyebrow">Watches and customized jewelry</p>
-          <h1>Wrist Mode</h1>
-          <div class="hero-feature-copy">
-            <strong>Premium Watches and Personal Jewelry</strong>
-            <p class="lead">Shop watches, women gift sets, wooden watches, ready jewelry, and custom engraved pieces made for names, photos, dates, and messages.</p>
-          </div>
-          <div class="hero-actions">
-            <button class="primary-button" data-view="watches">Shop Watches</button>
-            <button class="secondary-button" data-view="women">Women Watches</button>
-            <button class="secondary-button" data-view="jewelry">Shop Jewelry</button>
-            <button class="secondary-button" data-view="customize">Customize Your Own</button>
-          </div>
+    <section class="hero hero-split">
+      <div class="hero-editorial">
+        <p class="eyebrow">Wrist Mode</p>
+        <h1><span>Wear the</span><strong>Moment.</strong></h1>
+        <p class="hero-summary">Watches, gifts, and personal jewelry selected to mark your everyday style and your most meaningful moments.</p>
+        <div class="hero-actions">
+          <button class="primary-button" data-view="watches">Shop Watches</button>
+          <button class="secondary-button" data-view="customize">Custom Jewelry</button>
         </div>
+        <p class="hero-note">WhatsApp support for availability and custom requests.</p>
+      </div>
+      <div class="hero-product">
+        <img src="/assets/products/watches/sept-2026/01-tissot-black-chronograph-bracelet-watch-01.jpeg" alt="Wrist Mode statement watch" loading="eager" decoding="async" />
       </div>
     </section>
   `;
@@ -726,6 +759,17 @@ function stopHeroCarousel() {
   heroTimer = null;
 }
 
+function setTheme(theme) {
+  const nextTheme = theme === "light" ? "light" : "dark";
+  document.documentElement.dataset.theme = nextTheme;
+  localStorage.setItem("wm_theme", nextTheme);
+  const toggle = document.querySelector("[data-theme-toggle]");
+  if (!toggle) return;
+  const nextLabel = nextTheme === "dark" ? "Switch to light mode" : "Switch to dark mode";
+  toggle.setAttribute("aria-label", nextLabel);
+  toggle.setAttribute("title", nextLabel);
+}
+
 function startHeroCarousel() {
   stopHeroCarousel();
   if (!appEl.querySelector("[data-hero-carousel]")) return;
@@ -734,48 +778,65 @@ function startHeroCarousel() {
 }
 
 function renderHome() {
-  const featured = state.products.filter((product) => product.featured).slice(0, 4);
   return `
     ${renderHeroCarousel()}
 
-    <section class="page-shell">
-      <div class="category-grid">
-        ${categoryTile("Shop Watches", "Curated timepieces by brand and style.", "/assets/products/watches/sept-2026/07-naviforce-sport-watch-collection-04.jpeg", "watches")}
-        ${categoryTile("Women Watches", "Plain styles, bracelet sets, and full gift boxes.", "/assets/products/women-watches/ladies-luxury-full-gift-set-collection-001.jpeg", "women")}
-        ${categoryTile("Wooden Watches", "Natural wood-grain watches with bold character.", "/assets/products/wooden-watches/gold-bamboo-wood-watch.jpeg", "wooden")}
-        ${categoryTile("Shop Jewelry", "Bar necklaces, pendants, bracelets, and bangles.", "/assets/products/custom-jewelry/sept-2026/02-wrist-mode-custom-personalized-bar-necklace-and-pendant-collection-13.jpeg", "jewelry")}
-        ${categoryTile("Customize Your Own", "Photo pendants, keyholders, names, and messages.", "/assets/products/custom-jewelry/sept-2026/03-wrist-mode-custom-couple-broken-heart-pendant-sets-01.jpeg", "customize")}
+    <section class="home-assurance" aria-label="Wrist Mode shopping benefits">
+      <div class="page-shell home-assurance-grid">
+        ${homeAssurance("Chosen with intention", "A focused collection of watches and jewelry worth wearing and giving.")}
+        ${homeAssurance("A piece with your name on it", "Engrave a name, date, message, or memory into something lasting.")}
+        ${homeAssurance("Easy to order", "Ask questions, confirm availability, then order with direct WhatsApp support.")}
       </div>
     </section>
 
-    <section class="page-shell">
-      <div class="section-head">
+    <section class="page-shell home-categories">
+      <div class="home-directions-heading">
         <div>
-          <p class="eyebrow">New and featured</p>
-          <h2>Style That Holds Attention</h2>
+          <p class="eyebrow">Your Wrist Mode story</p>
+          <h2>Choose The<br />Reason.</h2>
         </div>
-        <button class="secondary-button" data-view="watches">View All</button>
+        <p>Not every piece is for the same moment. Start with what you want it to say, then we will take you to the right collection.</p>
       </div>
-      ${renderProductGrid(featured.length ? featured : state.products.slice(0, 4))}
+      <div class="home-directions-layout">
+        <div class="home-directions-image-wrap">
+          <img class="home-directions-image" src="/assets/products/watches/sept-2026/02-cartier-chronograph-bracelet-watch-collection-01.jpeg" alt="Silver Wrist Mode statement watch presented on a cushion" loading="eager" decoding="async" />
+          <span>Made for the moment</span>
+        </div>
+        <div class="home-direction-list">
+          ${directionRow("01", "A signature for every day", "A watch with presence for work, weekends, and every plan after.", "watches")}
+          ${directionRow("02", "A gift they will remember", "Ladies' watches and ready-to-give sets for someone worth celebrating.", "women")}
+          ${directionRow("03", "A story made personal", "Turn a name, date, message, or photo into a piece that is only theirs.", "customize")}
+        </div>
+      </div>
     </section>
 
-    <section class="page-shell">
-      <div class="trust-grid">
-        <article class="testimonial"><p class="eyebrow">Trust</p><h3>Premium Selection</h3><p>Every piece is presented with clear details, price, and stock status.</p></article>
-        <article class="testimonial"><p class="eyebrow">Custom</p><h3>Quote Before Payment</h3><p>Custom jewelry requests move from requested to quoted before confirmation.</p></article>
-        <article class="testimonial"><p class="eyebrow">Delivery</p><h3>Uganda Ready</h3><p>Checkout includes mobile money options and pay on delivery.</p></article>
-        <article class="testimonial"><p class="eyebrow">Care</p><h3>Status Updates</h3><p>Orders and stock alerts are tracked from the admin dashboard.</p></article>
+    <section class="page-shell home-story">
+      <div class="home-watch-mosaic" aria-label="Wrist Mode men's, ladies', and wooden watch collection">
+        <img class="home-watch-mosaic-men" src="/assets/products/watches/sept-2026/01-tissot-black-chronograph-bracelet-watch-01.jpeg" alt="Wrist Mode men's black chronograph watch" loading="lazy" decoding="async" />
+        <img class="home-watch-mosaic-ladies" src="/assets/products/women-watches/ladies-luxury-full-gift-set-collection-001.jpeg" alt="Wrist Mode ladies' watch gift set" loading="lazy" decoding="async" />
+        <img class="home-watch-mosaic-wood" src="/assets/products/wooden-watches/black-cream-dial-wood-watch.jpeg" alt="Wrist Mode wooden watch" loading="lazy" decoding="async" />
+      </div>
+      <div class="home-story-copy">
+        <p class="eyebrow">Made personal</p>
+        <h2>Keep What<br />Matters Close.</h2>
+        <p>Some pieces are chosen for their finish. Others are made around a name, a date, or a person you never want to forget. Wrist Mode brings both together.</p>
+        <button class="text-button" data-view="customize">Create a personal piece <span aria-hidden="true">&rarr;</span></button>
       </div>
     </section>
+
   `;
 }
 
-function categoryTile(title, copy, image, view) {
+function homeAssurance(title, copy) {
+  return `<article><strong>${escapeHtml(title)}</strong><span>${escapeHtml(copy)}</span></article>`;
+}
+
+function directionRow(number, title, copy, view) {
   return `
-    <button class="category-tile" data-view="${view}">
-      <img src="${attr(image)}" alt="" loading="eager" decoding="async" />
-      <p class="eyebrow">${escapeHtml(title)}</p>
-      <h3>${escapeHtml(copy)}</h3>
+    <button class="home-direction-row" data-view="${view}">
+      <em>${escapeHtml(number)}</em>
+      <span><strong>${escapeHtml(title)}</strong><small>${escapeHtml(copy)}</small></span>
+      <b aria-hidden="true">&rarr;</b>
     </button>
   `;
 }
@@ -1072,8 +1133,8 @@ function renderProductCard(product) {
             out
               ? `<button class="primary-button" data-open-notify="${product.id}">Notify Me</button>`
               : quoteOnly
-                ? `<button class="primary-button" data-view="contact">Enquire</button>`
-              : `<button class="primary-button" data-add="${product.id}">Add to Cart</button>`
+                ? inquiryAction(product)
+                : `<button class="primary-button" data-add="${product.id}">Add to Cart</button>`
           }
         </div>
       </div>
@@ -1082,239 +1143,253 @@ function renderProductCard(product) {
 }
 
 function renderCustomizerMockup(initial) {
+  const image = mockupForPiece(initial.piece, initial.finish, initial.variant.id);
   return `
-    <div class="studio-turntable studio-three-shell" data-preview-turntable>
-      <div class="studio3d-viewport" data-studio3d aria-label="Interactive 3D custom jewelry preview">
-        <div class="studio3d-loading" data-studio3d-loading>Loading 3D Studio</div>
-      </div>
-      <span class="studio3d-help">Drag to rotate | Scroll to zoom</span>
-      <span class="studio-surface-tag">3D Custom Studio</span>
+    <div class="flat-jewelry-preview" data-flat-preview>
+      <img data-preview-photo src="${attr(image)}" alt="${attr(initial.piece.label)} preview" />
+      <div class="flat-preview-text" data-preview-text>${escapeHtml(initial.text)}</div>
+      <img class="flat-uploaded-photo" data-uploaded-photo alt="Uploaded customer photo preview" />
+      <span class="flat-preview-status" data-preview-status>Personalized preview</span>
     </div>
-    <span class="plain-preview-note">Plain piece selected</span>
   `;
 }
 
+function braceletImage(finish = "Gold", style = state.braceletStyle) {
+  if (style === "link") return `${customStudioAsset}bracelet-link-${finish === "Two Tone" ? "two-tone" : slugify(finish)}-clean.png`;
+  return `${customStudioAsset}bracelet-id-${slugify(finish)}.png`;
+}
+
+function braceletStyleLabel(style = state.braceletStyle) {
+  return style === "link" ? "Link ID Bracelet" : "Classic ID Bracelet";
+}
+
+function verticalBarImage(finish = "Gold") {
+  return `${customStudioAsset}vertical-bar-${slugify(finish)}-clean.png`;
+}
+
+function renderCustomCollectionTabs(active = state.customCollection) {
+  return `<div class="custom-collection-tabs" aria-label="Custom jewelry collection">
+    <button type="button" class="${active === "bracelet" ? "active" : ""}" data-custom-collection="bracelet" aria-pressed="${active === "bracelet"}"><img src="${attr(braceletImage("Gold", "classic"))}" alt="" /><span><strong>ID Bracelets</strong><small>Engraved link styles</small></span></button>
+    <button type="button" class="${active === "vertical-bar" ? "active" : ""}" data-custom-collection="vertical-bar" aria-pressed="${active === "vertical-bar"}"><img src="${attr(verticalBarImage("Gold"))}" alt="" /><span><strong>Bar Necklaces</strong><small>Vertical four-side bars</small></span></button>
+  </div>`;
+}
+
 function renderCustomize() {
-  const selected = state.jewelryChoice || {};
-  const initial = customizerInitialState(selected);
-  const showcase = [
-    ["/assets/products/custom-jewelry/sept-2026/02-wrist-mode-custom-personalized-bar-necklace-and-pendant-collection-13.jpeg", "Bar necklace finishes"],
-    ["/assets/products/custom-jewelry/sept-2026/01-wrist-mode-custom-engraved-bracelet-and-name-plate-sets-15.jpeg", "Engraved bracelet sets"],
-    ["/assets/products/custom-jewelry/sept-2026/03-wrist-mode-custom-couple-broken-heart-pendant-sets-01.jpeg", "Couple pendant sets"],
-    [`${customStudioAsset}dogtag-photo-single.png`, "Picture dog tag"],
-    [`${customStudioAsset}name-script-butterfly.png`, "Name necklace"],
-    [`${customStudioAsset}cuff-multi.png`, "Cuff bangle"],
-  ];
+  if (state.customCollection === "vertical-bar") return renderVerticalBarCustomize();
+  const finish = state.braceletFinish;
+  const style = state.braceletStyle;
+  const finishesForStyle = style === "link" ? ["Gold", "Silver", "Black", "Two Tone"] : ["Gold", "Silver", "Black"];
   return `
-    <section class="page-shell custom-page">
-      <div class="custom-studio-intro">
-        <div>
-          <p class="eyebrow">Jewelry design studio</p>
-          <h2>Build Your Custom Piece</h2>
-          <p>Pick the jewelry type, choose the finish, add wording or a photo, then send the design request to Wrist Mode.</p>
-        </div>
-        <div class="studio-flow">
-          <span><strong>01</strong> Pick Piece</span>
-          <span><strong>02</strong> Preview</span>
-          <span><strong>03</strong> Send Request</span>
+    <section class="page-shell bracelet-custom-page">
+      <header class="bracelet-page-heading">
+        <p class="eyebrow">Wrist Mode custom jewelry</p>
+        <h2>Engraved ID Bracelets</h2>
+        <p>Choose a bracelet style and finish, then create a personal front or back engraving in a simple 2D preview.</p>
+        ${renderCustomCollectionTabs("bracelet")}
+      </header>
+      <div class="bracelet-product-layout surface">
+        <div class="bracelet-product-image"><img src="${attr(braceletImage(finish, style))}" alt="${attr(finish)} ${attr(braceletStyleLabel(style))}" /></div>
+        <div class="bracelet-product-options">
+          <p class="eyebrow">Choose a bracelet style</p>
+          <div class="bracelet-style-picker" aria-label="Bracelet style">
+            ${[["classic", "Classic Curb"], ["link", "Link Bracelet"]].map(([item, label]) => `<button type="button" class="${style === item ? "active" : ""}" data-bracelet-style="${item}" aria-pressed="${style === item}">${label}</button>`).join("")}
+          </div>
+          <p class="eyebrow">Choose a colour</p>
+          <h3>${escapeHtml(finish)} ${escapeHtml(braceletStyleLabel(style))}</h3>
+          <div class="bracelet-finish-picker" aria-label="Bracelet colour">
+            ${finishesForStyle.map((item) => `<button type="button" class="${finish === item ? "active" : ""}" data-bracelet-finish="${item}" aria-pressed="${finish === item}"><img src="${attr(braceletImage(item, style))}" alt="${item} bracelet" /><span>${item}</span></button>`).join("")}
+          </div>
+          <p class="muted">Make it plain, or add a name, date, message, and a small symbol to the engraving plate.</p>
+          <button class="primary-button bracelet-customize-button" data-open-bracelet-customizer>Customize now</button>
         </div>
       </div>
-
-      <div class="customizer-studio">
-        <article class="surface live-preview-card">
-          <div class="studio-panel-head">
-            <div>
-              <p class="eyebrow">Live preview</p>
-              <h3 data-preview-title>${escapeHtml(initial.choice === "Keep Plain" ? `Plain ${initial.piece.label}` : `Custom ${initial.piece.label}`)}</h3>
-            </div>
-            <span data-preview-piece-name>${escapeHtml(initial.piece.shortLabel)}</span>
-          </div>
-          <div
-            class="custom-preview-stage"
-            data-custom-preview
-            data-piece="${attr(initial.piece.id)}"
-            data-surface="${attr(initial.piece.surface || "engraved")}"
-            data-variant="${attr(initial.variant.id)}"
-            data-finish="${attr(slugify(initial.finish))}"
-            data-choice="${initial.choice === "Keep Plain" ? "plain" : "customize"}"
-            data-side="${attr(slugify(initial.side))}"
-            data-font="${attr(initial.font)}"
-            style="--engraving-size:${initial.textSize}px;--engraving-x:${initial.textX}%;--engraving-y:${initial.textY}%;--studio-rotate-y:${initial.rotateY}deg"
-          >
-            ${renderCustomizerMockup(initial)}
-          </div>
-          <div class="preview-summary">
-            <p class="muted" data-preview-copy>${escapeHtml(initial.piece.copy)}</p>
-          </div>
-        </article>
-
-        <form class="surface custom-designer-form" id="customForm">
-          <input type="hidden" name="selectedProduct" value="${attr(selected.productName || initial.piece.label)}" />
-          <input type="hidden" name="jewelryType" value="${attr(initial.piece.label)}" required />
-          <input type="hidden" name="designPiece" value="${attr(initial.piece.id)}" />
-          <input type="hidden" name="designVariant" value="${attr(initial.variant.id)}" />
-
-          <div class="designer-block">
-            <div class="designer-block-head">
-              <div>
-                <p class="eyebrow">Piece</p>
-                <h3>Choose jewelry</h3>
-              </div>
-            </div>
-            <div class="design-piece-grid">
-              ${customizerPieces
-                .map(
-                  (piece) => `<button class="design-piece-card ${piece.id === initial.piece.id ? "active" : ""}" type="button" data-design-piece="${attr(piece.id)}" aria-pressed="${piece.id === initial.piece.id}">
-                    <img class="piece-thumb" src="${attr(mockupForPiece(piece, initial.finish, firstVariantFor(piece).id))}" alt="${attr(piece.label)}" loading="lazy" decoding="async" />
-                    <strong>${escapeHtml(piece.shortLabel)}</strong>
-                  </button>`,
-                )
-                .join("")}
-            </div>
-          </div>
-          <div class="designer-block" data-variant-block ${initial.piece.variants?.length ? "" : "hidden"}>
-            <div class="designer-block-head">
-              <div>
-                <p class="eyebrow">Style</p>
-                <h3>Choose shape</h3>
-              </div>
-            </div>
-            <div class="design-variant-grid" data-design-variants data-piece="${attr(initial.piece.id)}">
-              ${renderDesignVariants(initial.piece, initial.variant.id)}
-            </div>
-          </div>
-
-          <div class="designer-block">
-            <div class="designer-block-head">
-              <div>
-                <p class="eyebrow">Design options</p>
-                <h3>Finish and engraving</h3>
-              </div>
-            </div>
-            <div class="form-grid studio-options-grid">
-            <div class="field"><span>Choice</span><div class="choice-toggle">
-              <label><input type="radio" name="choice" value="Keep Plain" data-custom-input ${initial.choice === "Keep Plain" ? "checked" : ""} /><strong>Keep Plain</strong></label>
-              <label><input type="radio" name="choice" value="Customize" data-custom-input ${initial.choice !== "Keep Plain" ? "checked" : ""} /><strong>Customize</strong></label>
-            </div></div>
-            <div class="field"><span>Surface</span><div class="choice-toggle side-toggle">
-              <label><input type="radio" name="side" value="Front" data-custom-input checked /><strong>Front</strong></label>
-              <label><input type="radio" name="side" value="Back" data-custom-input /><strong>Back</strong></label>
-              <label><input type="radio" name="side" value="Side 1" data-custom-input /><strong>Side 1</strong></label>
-              <label><input type="radio" name="side" value="Side 2" data-custom-input /><strong>Side 2</strong></label>
-            </div></div>
-            <div class="field wide"><span>Finish</span><div class="swatches">
-              ${finishes.map(([label, color], index) => `<label class="swatch"><input type="radio" name="finish" value="${label}" data-custom-input ${index === 0 ? "checked" : ""} /><i style="background:${color}"></i>${label}</label>`).join("")}
-            </div></div>
-            <label class="field"><span>Font</span><select name="designFont" data-custom-input>
-              ${customizerFonts.map(([value, label]) => `<option value="${attr(value)}">${escapeHtml(label)}</option>`).join("")}
-            </select></label>
-            <label class="field"><span>Chain Style</span><select name="chainStyle" data-custom-input>
-              <option>Fine Chain</option>
-              <option>Curb Chain</option>
-              <option>Rope Chain</option>
-            </select></label>
-            <label class="field"><span>Text Size</span><input name="textSize" type="range" min="18" max="64" value="${initial.textSize}" data-custom-input /></label>
-            <label class="field"><span>3D Turn</span><input name="rotateY" type="range" min="-36" max="36" value="${initial.rotateY}" data-custom-input /></label>
-            <label class="field photo-request-field" data-photo-request ${initial.piece.photo ? "" : "hidden"}><span>Picture For This Piece</span><input name="referenceImage" type="file" accept="image/*" data-photo-upload data-custom-input /><small>For photo pendants, picture dog tags, and keyholders, upload the exact photo the customer wants used.</small></label>
-            <label class="field wide"><span>Name, Date, Photo or Message</span><textarea name="engraving" data-custom-input placeholder="Type the name, date, initials, photo idea, or short message.">${escapeHtml(initial.text)}</textarea></label>
-            <label class="field"><span>Move Left or Right</span><input name="textX" type="range" min="25" max="75" value="${initial.textX}" data-custom-input /></label>
-            <label class="field"><span>Move Up or Down</span><input name="textY" type="range" min="30" max="72" value="${initial.textY}" data-custom-input /></label>
-            </div>
-          </div>
-
-          <div class="designer-block customer-details-block">
-            <div class="designer-block-head">
-              <div>
-                <p class="eyebrow">Customer details</p>
-                <h3>Send request</h3>
-              </div>
-            </div>
-            <div class="form-grid studio-options-grid">
-            <label class="field wide"><span>Special Notes</span><textarea name="notes" placeholder="Color preference, occasion, gift packaging, or delivery notes"></textarea></label>
-            <label class="field"><span>Name</span><input name="name" required /></label>
-            <label class="field"><span>Phone or WhatsApp</span><input name="phone" required /></label>
-            <label class="field"><span>Email</span><input name="email" type="email" /></label>
-            <label class="field"><span>Preferred Delivery Date</span><input name="deliveryDate" type="date" /></label>
-            </div>
-          </div>
-          <div class="studio-submit-bar">
-            <div>
-              <p class="eyebrow">Wrist Mode quote</p>
-              <strong>Submit design request</strong>
-            </div>
-            <button class="primary-button">Send to Wrist Mode</button>
-          </div>
-        </form>
-      </div>
-
-      <section class="custom-inspiration">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Custom examples</p>
-            <h3>Finished Work Ideas</h3>
-            <p>These show the kind of personal details customers can request after choosing a plain piece.</p>
-          </div>
-          <button class="secondary-button" data-view="jewelry">View Plain Jewelry</button>
-        </div>
-        <div class="custom-gallery">
-          ${showcase.map(([image, label]) => `<figure><img src="${image}" alt="Wrist Mode ${label}" loading="lazy" decoding="async" /><figcaption>${label}</figcaption></figure>`).join("")}
-        </div>
-      </section>
+      <div class="bracelet-benefits"><span>Live 2D text preview</span><span>Front or back engraving</span><span>Gold, silver, or black</span></div>
     </section>
   `;
+}
+
+function renderVerticalBarCustomize() {
+  const finish = state.barFinish;
+  return `
+    <section class="page-shell bracelet-custom-page vertical-bar-page">
+      <header class="bracelet-page-heading">
+        <p class="eyebrow">Wrist Mode custom jewelry</p>
+        <h2>Vertical Bar Necklaces</h2>
+        <p>Choose a finish, then place a name, date, or message along the face of your bar necklace.</p>
+        ${renderCustomCollectionTabs("vertical-bar")}
+      </header>
+      <div class="bracelet-product-layout surface">
+        <div class="bracelet-product-image"><img src="${attr(verticalBarImage(finish))}" alt="${attr(finish)} vertical bar necklace" /></div>
+        <div class="bracelet-product-options">
+          <p class="eyebrow">Choose a colour</p>
+          <h3>${escapeHtml(finish)} Vertical Bar Necklace</h3>
+          <div class="bracelet-finish-picker" aria-label="Bar necklace colour">
+            ${["Gold", "Silver", "Black"].map((item) => `<button type="button" class="${finish === item ? "active" : ""}" data-bar-finish="${item}" aria-pressed="${finish === item}"><img src="${attr(verticalBarImage(item))}" alt="${item} bar necklace" /><span>${item}</span></button>`).join("")}
+          </div>
+          <p class="muted">Add a clean engraving to the front or side face, with a font and symbol that match the way you want it to feel.</p>
+          <button class="primary-button bracelet-customize-button" data-open-bar-customizer>Customize now</button>
+        </div>
+      </div>
+      <div class="bracelet-benefits"><span>Live 2D text preview</span><span>Front or side engraving</span><span>Gold, silver, or black</span></div>
+    </section>
+  `;
+}
+
+function openBraceletCustomizer() {
+  const finish = state.braceletFinish;
+  const style = state.braceletStyle;
+  modalRoot.innerHTML = `
+    <div class="modal-backdrop bracelet-modal-backdrop" data-modal-close>
+      <article class="modal bracelet-custom-modal" role="dialog" aria-modal="true" aria-label="Customize ID bracelet">
+        <div class="modal-head"><div><p class="eyebrow">2D bracelet preview</p><h2>Customize your bracelet</h2></div><button class="icon-button" data-modal-close aria-label="Close">x</button></div>
+        <form id="braceletCustomizerForm">
+          <input type="hidden" name="selectedProduct" value="${attr(braceletStyleLabel(style))}" />
+          <input type="hidden" name="jewelryType" value="${attr(braceletStyleLabel(style))}" />
+          <input type="hidden" name="designPiece" value="name-bracelet" />
+          <input type="hidden" name="designVariant" value="front-name" />
+          <input type="hidden" name="finish" value="${attr(finish)}" />
+          <div class="bracelet-modal-grid">
+            <div class="bracelet-live-stage" data-bracelet-preview data-finish="${attr(slugify(finish))}" data-style="${attr(style)}">
+              <div class="bracelet-artwork">
+              <img src="${attr(braceletImage(finish, style))}" data-bracelet-preview-image alt="${attr(finish)} bracelet preview" />
+              <span class="bracelet-side-label" data-bracelet-side-label>Front engraving</span>
+              <span class="bracelet-engraving" data-bracelet-engraving>MAHAD</span>
+              <span class="bracelet-emoji" data-bracelet-emoji></span>
+              </div>
+            </div>
+            <div class="bracelet-custom-controls">
+              <label class="field"><span>Bracelet text</span><input name="engraving" maxlength="20" value="MAHAD" data-bracelet-input autocomplete="off" /><small data-bracelet-count>5 / 20</small></label>
+              <div class="field"><span>Engraving side</span><div class="choice-toggle compact-choice"><label><input type="radio" name="side" value="Front" checked data-bracelet-input /><strong>Front</strong></label><label><input type="radio" name="side" value="Back" data-bracelet-input /><strong>Back</strong></label></div></div>
+              <label class="field"><span>Font</span><select name="designFont" data-bracelet-input>${customizerFonts.map(([value, label]) => `<option value="${attr(value)}">${escapeHtml(label)}</option>`).join("")}</select></label>
+              <div class="field"><span>Add a symbol</span><div class="bracelet-emoji-picker">${["", "♥", "✦", "∞", "✝", "☺"].map((icon) => `<button type="button" data-bracelet-emoji="${attr(icon)}" aria-label="${icon || "No symbol"}" class="${icon === "" ? "active" : ""}">${icon || "None"}</button>`).join("")}</div></div>
+              <div class="bracelet-modal-note">Your preview updates as you type. Wrist Mode will confirm the final engraving layout before production.</div>
+              <div class="form-grid bracelet-customer-fields"><label class="field"><span>Your name</span><input name="name" required /></label><label class="field"><span>Phone or WhatsApp</span><input name="phone" required /></label><label class="field wide"><span>Notes for Wrist Mode</span><textarea name="notes" placeholder="Any extra request for your bracelet"></textarea></label></div>
+              <button class="primary-button wide-button">Send customization request</button>
+            </div>
+          </div>
+        </form>
+      </article>
+    </div>
+  `;
+}
+
+function updateBraceletPreview(form) {
+  const stage = form?.querySelector("[data-bracelet-preview]");
+  if (!stage) return;
+  const text = form.engraving?.value.trim() || "Your text";
+  const side = form.querySelector('input[name="side"]:checked')?.value || "Front";
+  const font = form.designFont?.value || "serif";
+  const emoji = form.dataset.emoji || "";
+  stage.dataset.font = font;
+  stage.classList.toggle("is-writing", Boolean(form.engraving?.value.trim()));
+  stage.querySelector("[data-bracelet-engraving]").textContent = `${emoji ? `${emoji} ` : ""}${text}`;
+  stage.querySelector("[data-bracelet-emoji]").textContent = "";
+  stage.querySelector("[data-bracelet-side-label]").textContent = `${side} engraving`;
+  const count = form.querySelector("[data-bracelet-count]");
+  if (count) count.textContent = `${form.engraving?.value.length || 0} / 20`;
+}
+
+function openBarCustomizer() {
+  const finish = state.barFinish;
+  modalRoot.innerHTML = `
+    <div class="modal-backdrop bracelet-modal-backdrop" data-modal-close>
+      <article class="modal bracelet-custom-modal" role="dialog" aria-modal="true" aria-label="Customize vertical bar necklace">
+        <div class="modal-head"><div><p class="eyebrow">2D bar necklace preview</p><h2>Customize your necklace</h2></div><button class="icon-button" data-modal-close aria-label="Close">x</button></div>
+        <form id="barCustomizerForm">
+          <input type="hidden" name="selectedProduct" value="Vertical Bar Necklace" />
+          <input type="hidden" name="jewelryType" value="Vertical Bar Necklace" />
+          <input type="hidden" name="designPiece" value="vertical-bar-necklace" />
+          <input type="hidden" name="designVariant" value="front-face" />
+          <input type="hidden" name="finish" value="${attr(finish)}" />
+          <div class="bracelet-modal-grid">
+            <div class="bar-live-stage" data-bar-preview data-finish="${attr(slugify(finish))}">
+              <div class="bar-artwork">
+                <img src="${attr(verticalBarImage(finish))}" alt="${attr(finish)} vertical bar necklace preview" />
+                <span class="bar-engraving" data-bar-engraving>Your text</span>
+              </div>
+            </div>
+            <div class="bracelet-custom-controls">
+              <label class="field"><span>Necklace text</span><input name="engraving" maxlength="20" value="MAHAD" data-bar-input autocomplete="off" /><small data-bar-count>5 / 20</small></label>
+              <div class="field"><span>Engraving face</span><div class="choice-toggle compact-choice"><label><input type="radio" name="face" value="Front" checked data-bar-input /><strong>Front</strong></label><label><input type="radio" name="face" value="Side" data-bar-input /><strong>Side</strong></label></div></div>
+              <label class="field"><span>Font</span><select name="designFont" data-bar-input>${customizerFonts.map(([value, label]) => `<option value="${attr(value)}">${escapeHtml(label)}</option>`).join("")}</select></label>
+              <div class="field"><span>Add a symbol</span><div class="bracelet-emoji-picker">${["", "♥", "✦", "∞", "✝", "☺"].map((icon) => `<button type="button" data-bar-symbol="${attr(icon)}" aria-label="${icon || "No symbol"}" class="${icon === "" ? "active" : ""}">${icon || "None"}</button>`).join("")}</div></div>
+              <div class="bracelet-modal-note">Your preview follows the tall pendant face as you type. Wrist Mode will confirm the final engraving layout before production.</div>
+              <div class="form-grid bracelet-customer-fields"><label class="field"><span>Your name</span><input name="name" required /></label><label class="field"><span>Phone or WhatsApp</span><input name="phone" required /></label><label class="field wide"><span>Notes for Wrist Mode</span><textarea name="notes" placeholder="Any extra request for your necklace"></textarea></label></div>
+              <button class="primary-button wide-button">Send customization request</button>
+            </div>
+          </div>
+        </form>
+      </article>
+    </div>
+  `;
+}
+
+function updateBarPreview(form) {
+  const stage = form?.querySelector("[data-bar-preview]");
+  if (!stage) return;
+  const text = form.engraving?.value.trim() || "Your text";
+  const face = form.querySelector('input[name="face"]:checked')?.value || "Front";
+  const font = form.designFont?.value || "serif";
+  stage.dataset.font = font;
+  stage.dataset.face = slugify(face);
+  stage.classList.toggle("is-writing", Boolean(form.engraving?.value.trim()));
+  stage.querySelector("[data-bar-engraving]").textContent = `${form.dataset.symbol ? `${form.dataset.symbol} ` : ""}${text}`;
+  const count = form.querySelector("[data-bar-count]");
+  if (count) count.textContent = `${form.engraving?.value.length || 0} / 20`;
 }
 
 function renderAbout() {
   return `
-    <section class="page-shell">
-      <div class="split">
+    <section class="page-shell about-page">
+      <div class="about-intro">
         <div>
           <p class="eyebrow">About Wrist Mode</p>
-          <h2>Time, Style, Mode</h2>
-          <p class="lead">Wrist Mode is built for people who want accessories that feel personal. The brand brings together stylish watches, clean jewelry pieces, and custom designs made around names, dates, initials, and meaningful moments.</p>
-          <p class="muted">The goal is simple: make every watch, ring, chain, and pendant feel like part of the customer's identity.</p>
+          <h2>Time, style, and a story that is yours.</h2>
+          <p class="lead">Wrist Mode brings together distinctive watches, ready-to-gift jewelry, and personal pieces created around names, dates, photos, and messages.</p>
+          <p class="muted">We believe an accessory should do more than look good. It should feel like it belongs to the person wearing it or receiving it.</p>
           <div class="button-row"><button class="primary-button" data-view="watches">Shop Watches</button><button class="secondary-button" data-view="customize">Start Custom Order</button></div>
         </div>
-        <img class="surface" src="/assets/wrist-mode-logo.png" alt="Wrist Mode brand logo" />
+        <img src="/assets/products/custom-jewelry/sept-2026/02-wrist-mode-custom-personalized-bar-necklace-and-pendant-collection-13.jpeg" alt="Wrist Mode personalized jewelry" loading="eager" decoding="async" />
+      </div>
+      <div class="about-principles">
+        ${aboutPrinciple("01", "Choose your style", "Browse watches, women gift sets, wooden watches, and ready jewelry.")}
+        ${aboutPrinciple("02", "Make it personal", "Use the Custom Studio to create a piece around a name, message, date, or picture.")}
+        ${aboutPrinciple("03", "Order with confidence", "Ask about stock, receive a custom quote when needed, and message Wrist Mode for updates.")}
       </div>
     </section>
   `;
 }
 
+function aboutPrinciple(number, title, copy) {
+  return `<article><span>${escapeHtml(number)}</span><h3>${escapeHtml(title)}</h3><p>${escapeHtml(copy)}</p></article>`;
+}
+
 function renderContact() {
   return `
-    <section class="page-shell">
-      <div class="section-head">
+    <section class="page-shell contact-page">
+      <div class="support-intro">
         <div>
-          <p class="eyebrow">Contact</p>
-          <h2>Talk to Wrist Mode</h2>
-          <p>Reach out for orders, custom jewelry quotes, product availability, and delivery questions.</p>
+          <p class="eyebrow">Contact Wrist Mode</p>
+          <h2>Need help with an order?</h2>
+          <p class="lead">Ask about stock, gifting, delivery, or a custom jewelry idea. For existing orders, simply message Wrist Mode on WhatsApp for an update.</p>
         </div>
+        <a class="primary-button" href="https://wa.me/256750668419" target="_blank" rel="noreferrer">Chat on WhatsApp</a>
       </div>
-      <div class="split">
-        <div class="surface">
+      <div class="support-layout support-layout-single">
+        <div class="support-contact surface">
+          <p class="eyebrow">Talk to us</p>
+          <h3>Wrist Mode Support</h3>
+          <p class="muted">For the quickest response, send a WhatsApp message with the product you are interested in. For an order update, include your receipt or request code in your message.</p>
           <div class="mini-grid contact-grid">
             <div><p class="eyebrow">WhatsApp</p><h3>0750 668 419</h3></div>
             <div><p class="eyebrow">Phone</p><h3>0750 668 419<br />0782 102 005</h3></div>
             <div><p class="eyebrow">Email</p><h3>bugembemahad42@gmail.com</h3></div>
           </div>
-          <div class="button-row" style="margin-top:1rem">
-            <a class="primary-button" href="https://wa.me/256750668419" target="_blank" rel="noreferrer">WhatsApp</a>
+          <div class="button-row" style="margin-top:1.2rem">
+            <a class="primary-button" href="https://wa.me/256750668419" target="_blank" rel="noreferrer">Ask on WhatsApp</a>
             <button class="secondary-button" data-view="customize">Custom Request</button>
           </div>
         </div>
-        <form class="surface" id="trackForm">
-          <p class="eyebrow">Track</p>
-          <h3>Track an Order or Custom Request</h3>
-          <p class="muted">After checkout or a custom request, Wrist Mode gives you a tracking code. Enter that exact code here to see the current status.</p>
-          <div class="track-help">
-            <span>Order code: WM-12345678</span>
-            <span>Custom code: WM-CUSTOM-1234567</span>
-          </div>
-          <label class="field"><span>Receipt or Request Code</span><input name="code" placeholder="Example: WM-12345678" required /></label>
-          <div class="button-row" style="margin-top:1rem"><button class="primary-button">Track Order</button></div>
-          <div id="trackResults" style="margin-top:1rem"></div>
-        </form>
       </div>
     </section>
   `;
@@ -1326,14 +1401,20 @@ function renderFaq() {
     ["How long does delivery take?", "Ready products can move quickly after confirmation. Custom pieces depend on design detail and availability."],
     ["Can I pay with mobile money?", "The checkout includes MTN Mobile Money, Airtel Money, card, and pay on delivery options. Live online payment requires provider credentials."],
     ["Can I be notified when stock returns?", "Out-of-stock product pages include a stock alert form for email or WhatsApp updates."],
+    ["What photo should I send for a picture pendant or dog tag?", "Send the clearest original photo you have. A well-lit photo where faces are easy to see gives the best result."],
+    ["Can I change or cancel an order?", "Contact Wrist Mode as soon as possible with your receipt or request code. Changes are easier before a custom piece enters production."],
   ];
   return `
-    <section class="page-shell">
-      <p class="eyebrow">FAQ</p>
-      <h2>Common Questions</h2>
-      <div class="orders-list">
-        ${items.map(([title, copy]) => `<article class="surface"><h3>${escapeHtml(title)}</h3><p class="muted">${escapeHtml(copy)}</p></article>`).join("")}
+    <section class="page-shell help-page">
+      <div class="help-intro">
+        <p class="eyebrow">Help Center</p>
+        <h2>Questions, answered.</h2>
+        <p class="lead">Quick answers about ordering, payments, delivery, stock, and personalized jewelry.</p>
       </div>
+      <div class="faq-list">
+        ${items.map(([title, copy]) => `<details class="faq-item"><summary>${escapeHtml(title)}</summary><p>${escapeHtml(copy)}</p></details>`).join("")}
+      </div>
+      <div class="help-cta"><span>Still need help?</span><a class="secondary-button" href="https://wa.me/256750668419" target="_blank" rel="noreferrer">Ask on WhatsApp</a></div>
     </section>
   `;
 }
@@ -1444,7 +1525,7 @@ function openProductModal(productId) {
                     </button>
                   </div>`
                 : `<div class="button-row">
-                    ${out ? `<button class="primary-button" data-open-notify="${product.id}">Notify Me</button>` : quoteOnly ? `<button class="primary-button" data-view="contact">Enquire</button>` : `<button class="primary-button" data-add="${product.id}">Add to Cart</button>`}
+                    ${out ? `<button class="primary-button" data-open-notify="${product.id}">Notify Me</button>` : quoteOnly ? inquiryAction(product) : `<button class="primary-button" data-add="${product.id}">Add to Cart</button>`}
                   </div>`
             }
           </div>
@@ -1489,29 +1570,6 @@ function setWomenPreview(control) {
   });
 }
 
-const custom3dTimers = new WeakMap();
-
-function syncCustomStudio3D(form, options = {}) {
-  if (!form) return;
-  const delay = options.immediate ? 0 : options.delay ?? 140;
-  const existingTimer = custom3dTimers.get(form);
-  if (existingTimer) window.clearTimeout(existingTimer);
-
-  if (!delay) {
-    custom3dTimers.delete(form);
-    window.WristModeStudio3D?.syncFromForm(form);
-    return;
-  }
-
-  custom3dTimers.set(
-    form,
-    window.setTimeout(() => {
-      custom3dTimers.delete(form);
-      window.WristModeStudio3D?.syncFromForm(form);
-    }, delay),
-  );
-}
-
 function updateCustomPreview(form, options = {}) {
   if (!form) return;
   const studio = form.closest(".customizer-studio");
@@ -1521,57 +1579,45 @@ function updateCustomPreview(form, options = {}) {
   const piece = customizerPieces.find((item) => item.id === form.designPiece?.value) || customizerPieces[0];
   const variant = updateVariantControls(form, piece);
   const choice = form.querySelector('input[name="choice"]:checked')?.value || "Customize";
-  const side = form.querySelector('input[name="side"]:checked')?.value || "Front";
   const finish = form.querySelector('input[name="finish"]:checked')?.value || "Gold";
   const font = form.designFont?.value || "serif";
   const engraving = form.engraving?.value.trim() || piece.placeholder;
-  const textSize = Number(form.textSize?.value || 34);
-  const textX = Number(form.textX?.value || 50);
-  const textY = Number(form.textY?.value || 52);
-  const rotateY = Number(form.rotateY?.value || 0);
+  const textSize = Math.max(20, Math.min(40, 42 - Math.max(0, engraving.length - 12) * 0.7));
   const isPlain = choice === "Keep Plain";
 
   if (form.jewelryType) form.jewelryType.value = piece.label;
   if (form.selectedProduct && !state.jewelryChoice?.productName) form.selectedProduct.value = piece.label;
 
   stage.dataset.piece = piece.id;
-  stage.dataset.surface = piece.surface || "engraved";
   stage.dataset.variant = variant.id;
-  stage.dataset.charm = variant.charm || "none";
   stage.dataset.finish = slugify(finish);
   stage.dataset.choice = isPlain ? "plain" : "customize";
-  stage.dataset.side = slugify(side);
   stage.dataset.font = font;
   stage.dataset.photoPiece = piece.photo ? "true" : "false";
   stage.style.setProperty("--engraving-size", `${textSize}px`);
-  stage.style.setProperty("--engraving-x", `${textX}%`);
-  stage.style.setProperty("--engraving-y", `${textY}%`);
-  stage.style.setProperty("--studio-rotate-y", `${rotateY}deg`);
 
   const text = stage.querySelector("[data-preview-text]");
-  const nameText = stage.querySelector("[data-name-object-text]");
-  const nameObject = stage.querySelector("[data-name-object]");
-  const sideLabel = stage.querySelector("[data-preview-side]");
   const photo = stage.querySelector("[data-preview-photo]");
+  const status = stage.querySelector("[data-preview-status]");
   const pieceName = studio.querySelector("[data-preview-piece-name]");
   const title = studio.querySelector("[data-preview-title]");
   const copy = studio.querySelector("[data-preview-copy]");
   const variantLabel = variant.label ? ` ${variant.label}` : "";
   if (text) text.textContent = isPlain ? "" : engraving;
-  if (nameText) nameText.textContent = isPlain ? "" : engraving;
-  if (nameObject) nameObject.dataset.nameCharm = variant.charm || "none";
-  if (sideLabel) sideLabel.textContent = side;
   if (photo) {
     photo.src = mockupForPiece(piece, finish, variant.id);
     photo.alt = `${piece.label} ${variant.label || ""} mockup`.trim();
   }
   if (pieceName) pieceName.textContent = piece.shortLabel || piece.label;
-  if (title) title.textContent = isPlain ? `Plain ${piece.label}` : `Custom ${piece.label}${variantLabel}`;
+  if (title) title.textContent = isPlain ? `Plain ${piece.label}` : `Personalized ${piece.label}${variantLabel}`;
   if (copy) copy.textContent = piece.copy;
+  if (status) status.textContent = isPlain ? "Plain piece selected" : piece.photo ? "Add your photo below" : "Personalized preview";
 
   const photoRequest = form.querySelector("[data-photo-request]");
   if (photoRequest) photoRequest.hidden = !piece.photo;
-  syncCustomStudio3D(form, options);
+  const engravingField = form.querySelector("[data-engraving-field]");
+  if (engravingField) engravingField.hidden = isPlain;
+  if (form.engraving) form.engraving.disabled = isPlain;
 }
 
 function updateUploadedPhotoPreview(input) {
@@ -1586,7 +1632,6 @@ function updateUploadedPhotoPreview(input) {
     if (image) image.src = src;
     stage.uploadedPhotoSrc = src;
     stage.dataset.hasUpload = src ? "true" : "false";
-    syncCustomStudio3D(form, { immediate: true });
   };
   reader.readAsDataURL(file);
 }
@@ -1665,15 +1710,15 @@ function renderAdmin() {
   }
 
   return `
-    <section class="page-shell">
-      <div class="section-head">
+    <section class="page-shell admin-shell">
+      <div class="section-head admin-page-head">
         <div>
-          <p class="eyebrow">Admin Dashboard</p>
-          <h2>Manage Wrist Mode</h2>
+          <p class="eyebrow">Private workspace</p>
+          <h2>Wrist Mode<br />Manager</h2>
         </div>
         <button class="secondary-button" data-logout>Logout</button>
       </div>
-      <div class="tabs">
+      <div class="tabs admin-tabs" aria-label="Dashboard sections">
         ${["overview", "products", "orders", "custom", "notifications"].map((tab) => `<button data-admin-tab="${tab}" class="${state.admin.tab === tab ? "active" : ""}">${labelize(tab)}</button>`).join("")}
       </div>
       ${renderAdminTab()}
@@ -1692,6 +1737,10 @@ function renderAdminTab() {
 function renderAdminOverview() {
   const data = state.admin.analytics || {};
   return `
+    <div class="admin-overview-intro">
+      <div><p class="eyebrow">Today at Wrist Mode</p><h3>Keep every order, product, and personal request moving.</h3></div>
+      <button class="primary-button" data-admin-tab="products">Add Product</button>
+    </div>
     <div class="analytics-grid">
       ${metric("Products", data.totalProducts)}
       ${metric("Orders", data.totalOrders)}
@@ -1700,7 +1749,7 @@ function renderAdminOverview() {
       ${metric("Low Stock", data.lowStock)}
       ${metric("Out of Stock", data.outOfStock)}
     </div>
-    <div class="surface" style="margin-top:1rem">
+    <div class="surface admin-best-sellers">
       <p class="eyebrow">Best sellers</p>
       ${
         data.bestSelling?.length
@@ -1720,10 +1769,11 @@ function renderAdminProducts() {
   const specs = editing?.specs || {};
   return `
     <div class="split admin-products-layout">
-      <form class="surface" id="productForm">
-        <p class="eyebrow">${editing ? "Edit product" : "Add product"}</p>
-        <h3>${editing ? escapeHtml(editing.name) : "New Inventory"}</h3>
-        <div class="form-grid">
+      <form class="surface admin-product-form" id="productForm">
+        <div class="admin-form-heading"><div><p class="eyebrow">${editing ? "Edit product" : "New product"}</p><h3>${editing ? escapeHtml(editing.name) : "Add to inventory"}</h3></div>${editing ? `<span class="admin-stock-pill ${editing.quantity <= 0 ? "is-out" : editing.quantity <= 3 ? "is-low" : ""}">${escapeHtml(editing.stockStatus)}</span>` : ""}</div>
+        <div class="admin-form-section">
+          <p class="admin-section-label">Product details</p>
+          <div class="form-grid">
           <label class="field"><span>Category</span><select name="category">
             <option value="watch" ${editing?.category === "watch" ? "selected" : ""}>Watch</option>
             <option value="women" ${editing?.category === "women" ? "selected" : ""}>Women Watch</option>
@@ -1733,16 +1783,28 @@ function renderAdminProducts() {
           <label class="field"><span>Brand</span><input name="brand" value="${attr(editing?.brand || "")}" required /></label>
           <label class="field wide"><span>Name</span><input name="name" value="${attr(editing?.name || "")}" required /></label>
           <label class="field"><span>Price</span><input name="price" type="number" min="0" value="${attr(editing?.price || "")}" required /></label>
-          <label class="field"><span>Stock Quantity</span><input name="quantity" type="number" min="0" value="${attr(editing?.quantity ?? "")}" required /></label>
+          <label class="field wide"><span>Description</span><textarea name="description" placeholder="Describe the piece, its condition, and why it is worth choosing.">${escapeHtml(editing?.description || "")}</textarea></label>
+          </div>
+        </div>
+        <div class="admin-form-section">
+          <p class="admin-section-label">Product specifications</p>
+          <div class="form-grid">
           <label class="field"><span>Case Size</span><input name="caseSize" value="${attr(specs.caseSize || "")}" /></label>
           <label class="field"><span>Strap Material</span><input name="strapMaterial" value="${attr(specs.strapMaterial || "")}" /></label>
           <label class="field"><span>Movement Type</span><input name="movementType" value="${attr(specs.movementType || "")}" /></label>
           <label class="field"><span>Material</span><input name="material" value="${attr(specs.material || "")}" /></label>
           <label class="field"><span>Finish</span><input name="finish" value="${attr(specs.finish || "")}" /></label>
           <label class="field"><span>Size</span><input name="size" value="${attr(specs.size || "")}" /></label>
-          <label class="field wide"><span>Description</span><textarea name="description">${escapeHtml(editing?.description || "")}</textarea></label>
-          <label class="field wide"><span>Images</span><input name="images" type="file" accept="image/*" multiple /></label>
-          <label class="swatch wide"><input type="checkbox" name="featured" ${editing?.featured ? "checked" : ""} /><i style="background:var(--gold)"></i> Featured product</label>
+          </div>
+        </div>
+        <div class="admin-form-section admin-inventory-section">
+          <p class="admin-section-label">Stock and visibility</p>
+          <div class="form-grid"><label class="field"><span>Stock Quantity</span><input name="quantity" type="number" min="0" value="${attr(editing?.quantity ?? "")}" required /></label><label class="swatch"><input type="checkbox" name="featured" ${editing?.featured ? "checked" : ""} /><i style="background:var(--gold)"></i> Show as featured</label></div>
+        </div>
+        <div class="admin-form-section">
+          <p class="admin-section-label">Product images</p>
+          ${editing?.images?.length ? `<div class="admin-image-strip">${editing.images.map((image) => `<img src="${attr(image)}" alt="" loading="lazy" />`).join("")}</div>` : ""}
+          <label class="admin-upload-dropzone"><input name="images" type="file" accept="image/*" multiple /><span>Choose product photos</span><small>JPG, PNG, or WEBP. Select up to six images.</small></label>
         </div>
         <input type="hidden" name="existingImages" value="${attr(JSON.stringify(editing?.images || []))}" />
         <div class="button-row" style="margin-top:1rem">
@@ -1751,13 +1813,14 @@ function renderAdminProducts() {
         </div>
       </form>
       <div class="admin-list">
+        <div class="admin-list-head"><div><p class="eyebrow">Inventory</p><h3>${state.products.length} products</h3></div><span class="muted">Select a product to edit</span></div>
         ${state.products.map((product) => `
           <article class="admin-product">
             <img src="${attr(imageFor(product))}" alt="${attr(product.name)}" loading="lazy" decoding="async" />
             <div>
               <p class="product-meta">${escapeHtml(product.brand)} | ${escapeHtml(product.category)}</p>
               <h3>${escapeHtml(product.name)}</h3>
-              <p>${displayPrice(product)} | ${product.quantity} in stock | ${escapeHtml(product.stockStatus)}</p>
+              <p>${displayPrice(product)} <span class="admin-stock-pill ${product.quantity <= 0 ? "is-out" : product.quantity <= 3 ? "is-low" : ""}">${product.quantity} in stock</span></p>
             </div>
             <div class="admin-actions">
               <button class="secondary-button" data-edit-product="${product.id}">Edit</button>
@@ -1979,13 +2042,14 @@ async function handleSubmit(event) {
     toast(`Order confirmed. Receipt: ${result.receipt}`);
   }
 
-  if (form.id === "customForm") {
+  if (form.id === "customForm" || form.id === "braceletCustomizerForm" || form.id === "barCustomizerForm") {
     event.preventDefault();
     const response = await fetch("/api/custom-orders", { method: "POST", body: new FormData(form) });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.error || "Custom request failed.");
     form.reset();
     state.jewelryChoice = null;
+    modalRoot.innerHTML = "";
     render();
     toast(`Custom request sent. Code: ${result.requestCode}`);
   }
@@ -2016,6 +2080,19 @@ async function handleClick(event) {
   const target = event.target.closest("button, a, [data-modal-close], [data-cart-close]");
   if (!target) return;
 
+  if (target.matches("[data-menu-toggle]")) {
+    state.mobileMenuOpen = !state.mobileMenuOpen;
+    document.body.classList.toggle("menu-open", state.mobileMenuOpen);
+    target.setAttribute("aria-expanded", String(state.mobileMenuOpen));
+    target.setAttribute("aria-label", state.mobileMenuOpen ? "Close navigation menu" : "Open navigation menu");
+    return;
+  }
+
+  if (target.matches("[data-theme-toggle]")) {
+    setTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light");
+    return;
+  }
+
   if (target.dataset.lookImage) {
     event.preventDefault();
     setLookBoard(target);
@@ -2037,6 +2114,67 @@ async function handleClick(event) {
   if (target.dataset.womenPreview) {
     event.preventDefault();
     setWomenPreview(target);
+    return;
+  }
+
+  if (target.dataset.braceletFinish) {
+    event.preventDefault();
+    state.braceletFinish = target.dataset.braceletFinish;
+    render();
+    return;
+  }
+
+  if (target.dataset.barFinish) {
+    event.preventDefault();
+    state.barFinish = target.dataset.barFinish;
+    render();
+    return;
+  }
+
+  if (target.dataset.customCollection) {
+    event.preventDefault();
+    state.customCollection = target.dataset.customCollection;
+    render();
+    return;
+  }
+
+  if (target.dataset.braceletStyle) {
+    event.preventDefault();
+    state.braceletStyle = target.dataset.braceletStyle;
+    if (state.braceletStyle === "classic" && state.braceletFinish === "Two Tone") state.braceletFinish = "Gold";
+    render();
+    return;
+  }
+
+  if (target.matches("[data-open-bracelet-customizer]")) {
+    event.preventDefault();
+    openBraceletCustomizer();
+    return;
+  }
+
+  if (target.matches("[data-open-bar-customizer]")) {
+    event.preventDefault();
+    openBarCustomizer();
+    return;
+  }
+
+  if (target.dataset.braceletEmoji !== undefined) {
+    event.preventDefault();
+    const form = target.closest("#braceletCustomizerForm");
+    if (!form) return;
+    form.dataset.emoji = target.dataset.braceletEmoji;
+    form.querySelectorAll("[data-bracelet-emoji]").forEach((button) => button.classList.toggle("active", button === target));
+    updateBraceletPreview(form);
+    return;
+  }
+
+  if (target.dataset.barSymbol !== undefined) {
+    event.preventDefault();
+    const form = target.closest("#barCustomizerForm");
+    if (!form) return;
+    form.dataset.symbol = target.dataset.barSymbol;
+    form.querySelectorAll("[data-bar-symbol]").forEach((button) => button.classList.toggle("active", button === target));
+    updateBarPreview(form);
     return;
   }
 
@@ -2190,6 +2328,18 @@ async function handleClick(event) {
 }
 
 function handleInput(event) {
+  const braceletForm = event.target.closest("#braceletCustomizerForm");
+  if (braceletForm && event.target.matches("[data-bracelet-input]")) {
+    updateBraceletPreview(braceletForm);
+    return;
+  }
+
+  const barForm = event.target.closest("#barCustomizerForm");
+  if (barForm && event.target.matches("[data-bar-input]")) {
+    updateBarPreview(barForm);
+    return;
+  }
+
   const customForm = event.target.closest("#customForm");
   if (customForm && event.target.matches("[data-custom-input]")) {
     const immediate = event.target.matches('select, input[type="radio"], input[type="file"]');
@@ -2232,6 +2382,9 @@ window.addEventListener("change", handleInput);
 
 (async function init() {
   try {
+    const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
+    if (currentPath === "/manage") state.view = "admin";
+    setTheme(localStorage.getItem("wm_theme") || "light");
     await Promise.all([refreshProducts(), checkAdminSession()]);
     if (state.admin.isAdmin) await loadAdminData();
     render();

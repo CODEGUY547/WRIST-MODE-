@@ -14,22 +14,22 @@
   <body>
     <header class="site-header">
       <button class="brand-link" data-view="home" aria-label="Wrist Mode home">
-        <img src="/assets/wrist-mode-mark.png" alt="" />
         <span>Wrist Mode</span>
+      </button>
+      <button class="menu-button" type="button" data-menu-toggle aria-label="Open navigation menu" aria-expanded="false" title="Open menu">
+        <span></span><span></span><span></span>
       </button>
       <nav class="main-nav" aria-label="Main navigation">
         <button data-view="home">Home</button>
         <button data-view="watches">Watches</button>
-        <button data-view="women">Women Watches</button>
+        <button data-view="women">Ladies Watches</button>
         <button data-view="wooden">Wooden Watches</button>
         <button data-view="jewelry">Jewelry</button>
-        <button data-view="customize">Customize</button>
-        <button data-view="about">About</button>
-        <button data-view="contact">Contact</button>
+        <button data-view="customize">Custom Jewelry</button>
         <button data-view="faq">FAQ</button>
       </nav>
       <div class="header-actions">
-        <button class="ghost-button" data-view="admin">Admin</button>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to light mode" title="Switch to light mode"><span aria-hidden="true"></span></button>
         <button class="cart-button" data-cart-toggle>
           Cart
           <span id="cartCount">0</span>
@@ -38,6 +38,21 @@
     </header>
 
     <main id="app" tabindex="-1"></main>
+
+    <footer class="site-footer">
+      <div class="page-shell site-footer-grid">
+        <div>
+          <p class="eyebrow">Wrist Mode</p>
+          <p>Watches and personal jewelry selected for everyday style, gifts, and meaningful moments.</p>
+        </div>
+        <div class="footer-links" aria-label="Support links">
+          <button data-view="about">About Wrist Mode</button>
+          <button data-view="contact">Contact Wrist Mode</button>
+          <button data-view="faq">Help Center</button>
+        </div>
+        <a class="footer-whatsapp" href="https://wa.me/256750668419" target="_blank" rel="noreferrer">Chat on WhatsApp</a>
+      </div>
+    </footer>
 
     <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping cart">
       <div class="drawer-head">
@@ -55,14 +70,5 @@
     <div id="toast" role="status" aria-live="polite"></div>
 
     <script src="/app.js"></script>
-    <script type="importmap">
-      {
-        "imports": {
-          "three": "/vendor/three/three.module.js",
-          "three/addons/": "/vendor/three/"
-        }
-      }
-    </script>
-    <script type="module" src="/studio3d.js"></script>
   </body>
 </html>

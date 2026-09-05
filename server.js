@@ -37,7 +37,6 @@ app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(UPLOAD_DIR));
 app.use("/vendor/three", express.static(path.join(ROOT, "node_modules", "three")));
-app.use(express.static(PUBLIC_DIR));
 
 function now() {
   return new Date().toISOString();
@@ -73,6 +72,16 @@ function jsonParse(value, fallback) {
   }
 }
 
+function htmlEscape(value = "") {
+  return String(value).replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
+  })[character]);
+}
+
 function stockStatus(quantity) {
   const qty = Number(quantity || 0);
   if (qty <= 0) return "Out of Stock";
@@ -98,6 +107,42 @@ function productFromRow(row) {
     updatedAt: row.updated_at,
   };
 }
+
+app.get("/share/product/:id", (req, res) => {
+  const product = productFromRow(get("SELECT * FROM products WHERE id = ?", [Number(req.params.id)]));
+  if (!product) {
+    res.status(404).send("Product not found.");
+    return;
+  }
+
+  const origin = `${req.protocol}://${req.get("host")}`;
+  const imagePath = product.images[0] || "/assets/watch-hero.jpg";
+  const imageUrl = new URL(imagePath, origin).toString();
+  const title = `${product.brand} ${product.name} | Wrist Mode`;
+  const description = `${product.stockStatus}. Contact Wrist Mode to confirm availability and price.`;
+
+  res.type("html").send(`<!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>${htmlEscape(title)}</title>
+        <meta name="description" content="${htmlEscape(description)}" />
+        <meta property="og:type" content="product" />
+        <meta property="og:title" content="${htmlEscape(title)}" />
+        <meta property="og:description" content="${htmlEscape(description)}" />
+        <meta property="og:image" content="${htmlEscape(imageUrl)}" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="${htmlEscape(title)}" />
+        <meta name="twitter:description" content="${htmlEscape(description)}" />
+        <meta name="twitter:image" content="${htmlEscape(imageUrl)}" />
+        <style>body{margin:0;background:#07100e;color:#fff4cf;font-family:Arial,sans-serif;padding:32px}main{max-width:620px;margin:auto}img{width:100%;max-height:480px;object-fit:cover;border-radius:10px}a{display:inline-block;margin-top:20px;padding:12px 18px;border-radius:999px;background:#d8a441;color:#11100b;font-weight:700;text-decoration:none}</style>
+      </head>
+      <body><main><img src="${htmlEscape(imageUrl)}" alt="${htmlEscape(product.name)}" /><p>${htmlEscape(product.brand)}</p><h1>${htmlEscape(product.name)}</h1><p>${htmlEscape(description)}</p><a href="/">Visit Wrist Mode</a></main></body>
+    </html>`);
+});
+
+app.use(express.static(PUBLIC_DIR));
 
 function orderFromRow(row) {
   return {
