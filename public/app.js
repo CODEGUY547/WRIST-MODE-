@@ -530,13 +530,6 @@ function watchInquiryUrl(product) {
   return `https://wa.me/256750668419?text=${encodeURIComponent(message)}`;
 }
 
-function customPreviewUrl(form) {
-  const preview = form.querySelector("[data-bracelet-preview-image], [data-bar-preview] img, [data-preview-photo]")
-    || form.closest(".customizer-studio")?.querySelector("[data-preview-photo]");
-  if (!preview?.src || preview.src.startsWith("data:")) return "";
-  return new URL(preview.src, window.location.origin).toString();
-}
-
 function customOrderWhatsAppUrl(form, requestCode) {
   const data = new FormData(form);
   const value = (name) => String(data.get(name) || "").trim();
@@ -551,15 +544,66 @@ function customOrderWhatsAppUrl(form, requestCode) {
     ["Font", value("designFont")],
     ["Notes", value("notes")],
   ].filter(([, detail]) => detail);
-  const previewUrl = customPreviewUrl(form);
   const message = [
     "Hello Wrist Mode, I would like this custom jewelry piece.",
     `Request code: ${requestCode}`,
     ...fields.map(([label, detail]) => `${label}: ${detail}`),
-    previewUrl ? `Design image: ${previewUrl}` : "",
     "Please confirm the price and delivery time.",
   ].filter(Boolean).join("\n");
   return `https://wa.me/256750668419?text=${encodeURIComponent(message)}`;
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = src;
+  });
+}
+
+async function customDashboardPreviewFile(form) {
+  const stage = form.querySelector("[data-bracelet-preview], [data-bar-preview]");
+  const imageElement = stage?.querySelector("img");
+  const engravingElement = stage?.querySelector("[data-bracelet-engraving], [data-bar-engraving]");
+  if (!stage || !imageElement?.src || !engravingElement) return null;
+
+  try {
+    const source = await loadImage(imageElement.src);
+    const maxWidth = 1200;
+    const width = Math.min(source.naturalWidth || maxWidth, maxWidth);
+    const height = Math.max(1, Math.round(width * (source.naturalHeight || 1) / (source.naturalWidth || width)));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+    if (!context) return null;
+
+    context.drawImage(source, 0, 0, width, height);
+    const stageBox = stage.getBoundingClientRect();
+    const engravingBox = engravingElement.getBoundingClientRect();
+    const x = ((engravingBox.left - stageBox.left + engravingBox.width / 2) / stageBox.width) * width;
+    const y = ((engravingBox.top - stageBox.top + engravingBox.height / 2) / stageBox.height) * height;
+    const styles = window.getComputedStyle(engravingElement);
+    const size = Math.max(16, Number.parseFloat(styles.fontSize) * (width / stageBox.width));
+    const isBlack = stage.dataset.finish === "black";
+    context.fillStyle = isBlack ? "#f4eee1" : "#151515";
+    context.font = `700 ${size}px ${styles.fontFamily}`;
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.shadowColor = isBlack ? "rgba(0, 0, 0, 0.72)" : "rgba(255, 255, 255, 0.55)";
+    context.shadowBlur = Math.max(1, size * 0.08);
+    context.save();
+    context.translate(x, y);
+    if (stage.matches("[data-bar-preview]")) context.rotate(-Math.PI / 2);
+    context.fillText(engravingElement.textContent.trim(), 0, 0, width * 0.38);
+    context.restore();
+
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+    return blob ? new File([blob], "wrist-mode-custom-preview.png", { type: "image/png" }) : null;
+  } catch {
+    return null;
+  }
 }
 
 function inquiryAction(product) {
@@ -2098,7 +2142,10 @@ async function handleSubmit(event) {
 
   if (form.id === "customForm" || form.id === "braceletCustomizerForm" || form.id === "barCustomizerForm") {
     event.preventDefault();
-    const response = await fetch("/api/custom-orders", { method: "POST", body: new FormData(form) });
+    const data = new FormData(form);
+    const previewFile = await customDashboardPreviewFile(form);
+    if (previewFile) data.set("referenceImage", previewFile);
+    const response = await fetch("/api/custom-orders", { method: "POST", body: data });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.error || "Custom request failed.");
     const whatsappUrl = customOrderWhatsAppUrl(form, result.requestCode);
