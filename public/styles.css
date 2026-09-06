@@ -4365,7 +4365,7 @@ textarea:focus {
 
 @media (max-width: 680px) {
   .header-whatsapp { display: none; }
-  .hero-split { display: flex; flex-direction: column; height: auto; min-height: 0; }
+  .hero-split { display: flex; flex-direction: column; align-items: stretch; height: auto; min-height: 0; }
   .hero-product { order: -1; height: 310px; }
   .hero-product img { min-height: 310px; object-position: center; }
   .hero-split .hero-editorial { min-height: 0; padding: 2rem 1.25rem 2.4rem; }
