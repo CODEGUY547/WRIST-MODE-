@@ -27,12 +27,13 @@
         <button data-view="jewelry">Jewelry</button>
         <button data-view="customize">Custom Jewelry</button>
         <button data-view="faq">FAQ</button>
+        <button class="menu-theme-toggle" type="button" data-theme-toggle aria-label="Switch theme"><span aria-hidden="true"></span>Theme</button>
       </nav>
       <div class="header-actions">
         <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to light mode" title="Switch to light mode"><span aria-hidden="true"></span></button>
-        <button class="cart-button" data-cart-toggle>
-          Cart
-          <span id="cartCount">0</span>
+        <button class="cart-button" data-cart-toggle aria-label="Open shopping cart" title="Open shopping cart">
+          <span class="cart-icon" aria-hidden="true"></span>
+          <span class="cart-count" id="cartCount">0</span>
         </button>
       </div>
     </header>

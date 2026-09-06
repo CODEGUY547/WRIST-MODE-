@@ -861,11 +861,11 @@ function setTheme(theme) {
   const nextTheme = theme === "light" ? "light" : "dark";
   document.documentElement.dataset.theme = nextTheme;
   localStorage.setItem("wm_theme", nextTheme);
-  const toggle = document.querySelector("[data-theme-toggle]");
-  if (!toggle) return;
   const nextLabel = nextTheme === "dark" ? "Switch to light mode" : "Switch to dark mode";
-  toggle.setAttribute("aria-label", nextLabel);
-  toggle.setAttribute("title", nextLabel);
+  document.querySelectorAll("[data-theme-toggle]").forEach((toggle) => {
+    toggle.setAttribute("aria-label", nextLabel);
+    toggle.setAttribute("title", nextLabel);
+  });
 }
 
 function startHeroCarousel() {
