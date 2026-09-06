@@ -419,6 +419,21 @@ const state = {
 
 let heroTimer = null;
 
+const customerViews = new Set(["home", "watches", "women", "wooden", "jewelry", "customize", "about", "contact", "faq"]);
+
+function viewFromLocation() {
+  const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
+  if (currentPath === "/manage") return "admin";
+
+  const hashView = decodeURIComponent(window.location.hash.slice(1));
+  return customerViews.has(hashView) ? hashView : "home";
+}
+
+function urlForView(view) {
+  if (view === "admin") return "/manage";
+  return view === "home" ? "/" : `/#${encodeURIComponent(view)}`;
+}
+
 function escapeHtml(value = "") {
   return String(value).replace(/[&<>"']/g, (char) => {
     const map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" };
@@ -661,11 +676,18 @@ async function loadAdminData() {
   state.admin.notifications = notifications;
 }
 
-async function setView(view) {
+async function setView(view, { updateHistory = true } = {}) {
+  if (!customerViews.has(view) && view !== "admin") view = "home";
+  const previousView = state.view;
   if (view !== state.view && ["watches", "jewelry", "wooden", "women"].includes(view)) state.catalogLimit = 24;
   state.view = view;
   state.mobileMenuOpen = false;
   if (view === "admin" && state.admin.isAdmin) await loadAdminData();
+
+  if (updateHistory && view !== previousView) {
+    window.history.pushState({ view }, "", urlForView(view));
+  }
+
   render();
   appEl.focus({ preventScroll: true });
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -2379,11 +2401,13 @@ window.addEventListener("click", (event) => {
 
 window.addEventListener("input", handleInput);
 window.addEventListener("change", handleInput);
+window.addEventListener("popstate", () => {
+  setView(viewFromLocation(), { updateHistory: false }).catch((error) => toast(error.message));
+});
 
 (async function init() {
   try {
-    const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
-    if (currentPath === "/manage") state.view = "admin";
+    state.view = viewFromLocation();
     setTheme(localStorage.getItem("wm_theme") || "light");
     await Promise.all([refreshProducts(), checkAdminSession()]);
     if (state.admin.isAdmin) await loadAdminData();
