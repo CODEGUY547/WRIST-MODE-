@@ -530,6 +530,38 @@ function watchInquiryUrl(product) {
   return `https://wa.me/256750668419?text=${encodeURIComponent(message)}`;
 }
 
+function customPreviewUrl(form) {
+  const preview = form.querySelector("[data-bracelet-preview-image], [data-bar-preview] img, [data-preview-photo]")
+    || form.closest(".customizer-studio")?.querySelector("[data-preview-photo]");
+  if (!preview?.src || preview.src.startsWith("data:")) return "";
+  return new URL(preview.src, window.location.origin).toString();
+}
+
+function customOrderWhatsAppUrl(form, requestCode) {
+  const data = new FormData(form);
+  const value = (name) => String(data.get(name) || "").trim();
+  const symbol = form.dataset.emoji || form.dataset.symbol || "";
+  const fields = [
+    ["Customer", value("name")],
+    ["Customer WhatsApp", value("phone")],
+    ["Piece", value("jewelryType") || value("selectedProduct")],
+    ["Finish", value("finish")],
+    ["Engraving", `${symbol ? `${symbol} ` : ""}${value("engraving")}`.trim()],
+    ["Engraving side", value("side") || value("face")],
+    ["Font", value("designFont")],
+    ["Notes", value("notes")],
+  ].filter(([, detail]) => detail);
+  const previewUrl = customPreviewUrl(form);
+  const message = [
+    "Hello Wrist Mode, I would like this custom jewelry piece.",
+    `Request code: ${requestCode}`,
+    ...fields.map(([label, detail]) => `${label}: ${detail}`),
+    previewUrl ? `Design image: ${previewUrl}` : "",
+    "Please confirm the price and delivery time.",
+  ].filter(Boolean).join("\n");
+  return `https://wa.me/256750668419?text=${encodeURIComponent(message)}`;
+}
+
 function inquiryAction(product) {
   if (isWatchInquiry(product)) {
     return `<a class="primary-button" href="${attr(watchInquiryUrl(product))}" target="_blank" rel="noreferrer">Ask on WhatsApp</a>`;
@@ -1286,7 +1318,7 @@ function openBraceletCustomizer() {
               <div class="field"><span>Add a symbol</span><div class="bracelet-emoji-picker">${["", "♥", "✦", "∞", "✝", "☺"].map((icon) => `<button type="button" data-bracelet-emoji="${attr(icon)}" aria-label="${icon || "No symbol"}" class="${icon === "" ? "active" : ""}">${icon || "None"}</button>`).join("")}</div></div>
               <div class="bracelet-modal-note">Your preview updates as you type. Wrist Mode will confirm the final engraving layout before production.</div>
               <div class="form-grid bracelet-customer-fields"><label class="field"><span>Your name</span><input name="name" required /></label><label class="field"><span>Phone or WhatsApp</span><input name="phone" required /></label><label class="field wide"><span>Notes for Wrist Mode</span><textarea name="notes" placeholder="Any extra request for your bracelet"></textarea></label></div>
-              <button class="primary-button wide-button">Send customization request</button>
+              <button class="primary-button wide-button">Continue to WhatsApp</button>
             </div>
           </div>
         </form>
@@ -1337,7 +1369,7 @@ function openBarCustomizer() {
               <div class="field"><span>Add a symbol</span><div class="bracelet-emoji-picker">${["", "♥", "✦", "∞", "✝", "☺"].map((icon) => `<button type="button" data-bar-symbol="${attr(icon)}" aria-label="${icon || "No symbol"}" class="${icon === "" ? "active" : ""}">${icon || "None"}</button>`).join("")}</div></div>
               <div class="bracelet-modal-note">Your preview follows the tall pendant face as you type. Wrist Mode will confirm the final engraving layout before production.</div>
               <div class="form-grid bracelet-customer-fields"><label class="field"><span>Your name</span><input name="name" required /></label><label class="field"><span>Phone or WhatsApp</span><input name="phone" required /></label><label class="field wide"><span>Notes for Wrist Mode</span><textarea name="notes" placeholder="Any extra request for your necklace"></textarea></label></div>
-              <button class="primary-button wide-button">Send customization request</button>
+              <button class="primary-button wide-button">Continue to WhatsApp</button>
             </div>
           </div>
         </form>
@@ -2069,11 +2101,13 @@ async function handleSubmit(event) {
     const response = await fetch("/api/custom-orders", { method: "POST", body: new FormData(form) });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.error || "Custom request failed.");
+    const whatsappUrl = customOrderWhatsAppUrl(form, result.requestCode);
     form.reset();
     state.jewelryChoice = null;
     modalRoot.innerHTML = "";
     render();
-    toast(`Custom request sent. Code: ${result.requestCode}`);
+    toast("Opening WhatsApp with your customization details.");
+    window.setTimeout(() => window.location.assign(whatsappUrl), 120);
   }
 
   if (form.id === "stockAlertForm") {
