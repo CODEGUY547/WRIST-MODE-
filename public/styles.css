@@ -4365,15 +4365,23 @@ textarea:focus {
 
 @media (max-width: 680px) {
   .header-whatsapp { display: none; }
-  .hero-split { display: flex; flex-direction: column; align-items: stretch; height: auto; min-height: 0; }
-  .hero-product { order: -1; height: 310px; }
-  .hero-product img { min-height: 310px; object-position: center; }
-  .hero-split .hero-editorial { min-height: 0; padding: 2rem 1.25rem 2.4rem; }
-  .hero-split .hero-editorial::before { width: 420px; height: 420px; top: -220px; right: -240px; }
-  .hero-split h1 { margin-bottom: 1rem; font-size: clamp(3.3rem, 16vw, 5.2rem); }
-  .hero-summary { font-size: 0.94rem; }
-  .hero-split .hero-actions { width: 100%; margin-top: 1.4rem; }
-  .hero-note { font-size: 0.74rem; }
+  body.home-page .site-header { position: absolute; right: 0; left: 0; border-bottom-color: transparent; background: transparent; }
+  :root[data-theme="light"] body.home-page .site-header { background: transparent; }
+  body.home-page .brand-link { color: #fffdf8; }
+  body.home-page .menu-button { border-color: rgba(255, 255, 255, 0.35); background: rgba(7, 8, 9, 0.28); }
+  body.home-page .menu-button span { background: #fffdf8; }
+  body.home-page .theme-toggle { border-color: rgba(255, 255, 255, 0.38); background: rgba(7, 8, 9, 0.22); }
+  :root[data-theme="light"] body.home-page .theme-toggle span { border-color: var(--gold-light); box-shadow: inset -5px -2px 0 var(--gold-light); }
+  .hero-split { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); height: 100svh; min-height: 680px; }
+  .hero-product { position: absolute; inset: 0; z-index: 0; order: initial; width: 100%; height: auto; background: #10100e; }
+  .hero-product::after { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7, 8, 9, 0.12) 10%, rgba(7, 8, 9, 0.24) 42%, rgba(7, 8, 9, 0.94) 88%); content: ""; }
+  .hero-product img { width: 100%; height: 100%; min-height: 0; object-position: center; }
+  .hero-split .hero-editorial { z-index: 1; grid-column: 1; grid-row: 1; width: 100%; box-sizing: border-box; align-self: end; min-height: 0; padding: 7.2rem 1.25rem 1.65rem; background: transparent; }
+  .hero-split .hero-editorial::before { width: 420px; height: 420px; top: auto; right: -240px; bottom: -220px; }
+  .hero-split h1, :root[data-theme="light"] .hero-split h1 { margin-bottom: 1rem; color: #fffdf8; font-size: clamp(3.3rem, 16vw, 5.2rem); }
+  .hero-summary, :root[data-theme="light"] .hero-summary { color: rgba(255, 253, 248, 0.82); font-size: 0.94rem; }
+  .hero-split .hero-actions { width: 100%; margin-top: 1.2rem; }
+  .hero-note, :root[data-theme="light"] .hero-note { color: rgba(255, 253, 248, 0.67); font-size: 0.74rem; }
   .home-assurance-grid,
   .home-directions-heading,
   .home-directions-layout { grid-template-columns: 1fr; }
@@ -4484,3 +4492,13 @@ textarea:focus {
 :root[data-theme="light"] .bracelet-product-options .muted { color: #6f716f; }
 :root[data-theme="light"] .bracelet-benefits span { color: #2a2d31; background: #e8e0d2; }
 :root[data-theme="light"] input, :root[data-theme="light"] select, :root[data-theme="light"] textarea { color: #2a2d31; border-color: rgba(31, 34, 38, 0.24); background: #fffdf8; color-scheme: light; }
+
+@media (max-width: 680px) {
+  :root[data-theme="light"] body.home-page .site-header { background: transparent; }
+  :root[data-theme="light"] body.home-page .brand-link { color: #fffdf8; }
+  :root[data-theme="light"] body.home-page .menu-button span { background: #fffdf8; }
+  :root[data-theme="light"] .hero-split .hero-editorial { background: transparent; }
+  :root[data-theme="light"] .hero-split h1 { color: #fffdf8; }
+  :root[data-theme="light"] .hero-summary { color: rgba(255, 253, 248, 0.82); }
+  :root[data-theme="light"] .hero-note { color: rgba(255, 253, 248, 0.67); }
+}
