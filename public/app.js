@@ -1339,7 +1339,7 @@ function openBraceletCustomizer() {
   modalRoot.innerHTML = `
     <div class="modal-backdrop bracelet-modal-backdrop" data-modal-close>
       <article class="modal bracelet-custom-modal" role="dialog" aria-modal="true" aria-label="Customize ID bracelet">
-        <div class="modal-head"><div><p class="eyebrow">2D bracelet preview</p><h2>Customize your bracelet</h2></div><button class="icon-button" data-modal-close aria-label="Close">x</button></div>
+        <div class="modal-head"><button class="icon-button" data-modal-close aria-label="Close">x</button></div>
         <form id="braceletCustomizerForm">
           <input type="hidden" name="selectedProduct" value="${attr(braceletStyleLabel(style))}" />
           <input type="hidden" name="jewelryType" value="${attr(braceletStyleLabel(style))}" />
@@ -1392,7 +1392,7 @@ function openBarCustomizer() {
   modalRoot.innerHTML = `
     <div class="modal-backdrop bracelet-modal-backdrop" data-modal-close>
       <article class="modal bracelet-custom-modal" role="dialog" aria-modal="true" aria-label="Customize vertical bar necklace">
-        <div class="modal-head"><div><p class="eyebrow">2D bar necklace preview</p><h2>Customize your necklace</h2></div><button class="icon-button" data-modal-close aria-label="Close">x</button></div>
+        <div class="modal-head"><button class="icon-button" data-modal-close aria-label="Close">x</button></div>
         <form id="barCustomizerForm">
           <input type="hidden" name="selectedProduct" value="Vertical Bar Necklace" />
           <input type="hidden" name="jewelryType" value="Vertical Bar Necklace" />
