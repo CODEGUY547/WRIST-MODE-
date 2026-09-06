@@ -4473,6 +4473,9 @@ textarea:focus {
 :root[data-theme="light"] .home-assurance span, :root[data-theme="light"] .home-directions-heading > p, :root[data-theme="light"] .home-direction-row small, :root[data-theme="light"] .home-story-copy > p:not(.eyebrow) { color: #6f716f; }
 :root[data-theme="light"] .home-direction-list, :root[data-theme="light"] .home-direction-row { border-color: rgba(31, 34, 38, 0.18); }
 :root[data-theme="light"] .home-story { background: #e8e0d2; }
+:root[data-theme="light"] .section-head p { color: #5f6266; }
+:root[data-theme="light"] .filters { border-color: rgba(31, 34, 38, 0.2); background: #d9d2c7; }
+:root[data-theme="light"] .field span, :root[data-theme="light"] .field label { color: #34373b; }
 :root[data-theme="light"] .bracelet-page-heading p:not(.eyebrow) { color: #6f716f; }
 :root[data-theme="light"] .bracelet-product-options { background: #e8e0d2; }
 :root[data-theme="light"] .bracelet-product-options h3, :root[data-theme="light"] .bracelet-product-options .eyebrow { color: #2a2d31; }
