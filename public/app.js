@@ -822,7 +822,6 @@ function renderHeroCarousel() {
   return `
     <section class="hero hero-split">
       <div class="hero-editorial">
-        <p class="eyebrow">Wrist Mode</p>
         <h1><span>Wear the</span><strong>Moment.</strong></h1>
         <p class="hero-summary">Watches, gifts, and personal jewelry selected to mark your everyday style and your most meaningful moments.</p>
         <div class="hero-actions">
