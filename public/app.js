@@ -274,20 +274,11 @@ const customizerPieces = [
 ];
 
 const customizerFonts = [
-  ["serif", "Classic Serif"],
+  ["monotype", "Monotype"],
+  ["calligraphic", "Calligraphic"],
   ["great-vibes", "Great Vibes"],
-  ["allura", "Allura"],
-  ["dancing", "Dancing Script"],
-  ["parisienne", "Parisienne"],
-  ["imperial", "Imperial Script"],
-  ["alex", "Alex Brush"],
-  ["tangerine", "Tangerine"],
-  ["script", "Signature Italic"],
-  ["playfair", "Luxury Serif"],
-  ["gothic", "Gothic Blackletter"],
-  ["cinzel", "Engraved Caps"],
-  ["sans", "Modern Sans"],
-  ["caps", "Bold Caps"],
+  ["serif", "Classic Serif"],
+  ["caps", "Engraved Caps"],
 ];
 
 const viewMeta = {
@@ -1773,6 +1764,21 @@ function openNotifyModal(productId) {
   `;
 }
 
+function openCustomOrderConfirmation(requestCode, whatsappUrl) {
+  modalRoot.innerHTML = `
+    <div class="modal-backdrop" data-modal-close>
+      <article class="modal custom-order-confirmation" role="dialog" aria-modal="true" aria-label="Custom request received">
+        <div class="modal-head"><div><p class="eyebrow">Request received</p><h2>Your design is with Wrist Mode.</h2></div><button class="icon-button" data-modal-close aria-label="Close">x</button></div>
+        <p class="muted">Request code: <strong>${escapeHtml(requestCode)}</strong></p>
+        <div class="button-row">
+          <a class="primary-button" href="${attr(whatsappUrl)}" target="_blank" rel="noreferrer">Open WhatsApp</a>
+          <button class="secondary-button" data-modal-close>Continue Browsing</button>
+        </div>
+      </article>
+    </div>
+  `;
+}
+
 function labelize(value) {
   return String(value).replace(/([A-Z])/g, " $1").replace(/^./, (char) => char.toUpperCase());
 }
@@ -2169,8 +2175,9 @@ async function handleSubmit(event) {
     state.jewelryChoice = null;
     modalRoot.innerHTML = "";
     render();
+    openCustomOrderConfirmation(result.requestCode, whatsappUrl);
     toast("Opening WhatsApp with your customization details.");
-    window.setTimeout(() => window.location.assign(whatsappUrl), 120);
+    window.setTimeout(() => window.location.assign(whatsappUrl), 250);
   }
 
   if (form.id === "stockAlertForm") {

@@ -79,6 +79,8 @@
 }
 
 .custom-preview-stage[data-font="script"] .flat-preview-text,
+.custom-preview-stage[data-font="monotype"] .flat-preview-text,
+.custom-preview-stage[data-font="calligraphic"] .flat-preview-text,
 .custom-preview-stage[data-font="great-vibes"] .flat-preview-text,
 .custom-preview-stage[data-font="allura"] .flat-preview-text,
 .custom-preview-stage[data-font="dancing"] .flat-preview-text,
@@ -2482,6 +2484,19 @@ textarea:focus {
   font-weight: 700;
 }
 
+.custom-preview-stage[data-font="monotype"] .engraving-text,
+.custom-preview-stage[data-font="monotype"] .name-necklace-text {
+  font-family: "Monotype Corsiva", "URW Chancery L", cursive;
+  font-weight: 400;
+}
+
+.custom-preview-stage[data-font="calligraphic"] .engraving-text,
+.custom-preview-stage[data-font="calligraphic"] .name-necklace-text {
+  font-family: "Brush Script MT", "Segoe Script", cursive;
+  font-style: italic;
+  font-weight: 400;
+}
+
 .custom-preview-stage[data-font="great-vibes"] .engraving-text,
 .custom-preview-stage[data-font="great-vibes"] .name-necklace-text {
   font-family: "Great Vibes", Georgia, serif;
@@ -4292,7 +4307,7 @@ textarea:focus {
 .flat-jewelry-preview::before { position: absolute; inset: 10% 12%; border: 1px solid rgba(216, 164, 65, 0.16); border-radius: 50%; content: ""; }
 .flat-jewelry-preview > img[data-preview-photo] { position: relative; z-index: 1; width: 100%; height: 430px; object-fit: contain; padding: 1.25rem; filter: drop-shadow(0 18px 22px rgba(0, 0, 0, 0.42)); }
 .flat-preview-text { position: absolute; z-index: 2; top: 50%; left: 50%; max-width: 54%; color: #201b0e; font-family: Georgia, serif; font-size: var(--engraving-size, 28px); font-weight: 700; line-height: 1.05; text-align: center; overflow-wrap: anywhere; text-shadow: 0 1px rgba(255, 248, 222, 0.36); transform: translate(-50%, -50%); mix-blend-mode: multiply; pointer-events: none; }
-.custom-preview-stage[data-font="script"] .flat-preview-text, .custom-preview-stage[data-font="great-vibes"] .flat-preview-text, .custom-preview-stage[data-font="allura"] .flat-preview-text, .custom-preview-stage[data-font="dancing"] .flat-preview-text, .custom-preview-stage[data-font="parisienne"] .flat-preview-text, .custom-preview-stage[data-font="alex"] .flat-preview-text, .custom-preview-stage[data-font="tangerine"] .flat-preview-text { font-family: cursive; font-style: italic; }
+.custom-preview-stage[data-font="script"] .flat-preview-text, .custom-preview-stage[data-font="monotype"] .flat-preview-text, .custom-preview-stage[data-font="calligraphic"] .flat-preview-text, .custom-preview-stage[data-font="great-vibes"] .flat-preview-text, .custom-preview-stage[data-font="allura"] .flat-preview-text, .custom-preview-stage[data-font="dancing"] .flat-preview-text, .custom-preview-stage[data-font="parisienne"] .flat-preview-text, .custom-preview-stage[data-font="alex"] .flat-preview-text, .custom-preview-stage[data-font="tangerine"] .flat-preview-text { font-family: cursive; font-style: italic; }
 .custom-preview-stage[data-font="gothic"] .flat-preview-text, .custom-preview-stage[data-font="cinzel"] .flat-preview-text, .custom-preview-stage[data-font="caps"] .flat-preview-text { letter-spacing: 0; text-transform: uppercase; }
 .custom-preview-stage[data-choice="plain"] .flat-preview-text { display: none; }
 .flat-uploaded-photo { display: none; position: absolute; z-index: 3; top: 26%; left: 50%; width: 30%; aspect-ratio: 1; object-fit: cover; border: 2px solid rgba(255, 246, 214, 0.7); border-radius: 3px; transform: translateX(-50%); }
