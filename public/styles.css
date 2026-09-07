@@ -1055,6 +1055,11 @@ textarea:focus {
   margin-bottom: 1.6rem;
 }
 
+.home-new-arrivals {
+  padding-top: clamp(3rem, 7vw, 6rem);
+  padding-bottom: clamp(3rem, 7vw, 6rem);
+}
+
 .home-gift-guide {
   display: grid;
   grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);

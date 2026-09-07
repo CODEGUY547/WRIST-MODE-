@@ -875,8 +875,25 @@ function startHeroCarousel() {
 }
 
 function renderHome() {
+  const newArrivals = state.products
+    .filter((product) => product.category === "watch")
+    .sort((first, second) => new Date(second.createdAt || 0) - new Date(first.createdAt || 0))
+    .slice(0, 4);
+
   return `
     ${renderHeroCarousel()}
+
+    <section class="page-shell home-featured home-new-arrivals" aria-labelledby="new-arrivals-title">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Just in</p>
+          <h2 id="new-arrivals-title">New Arrivals</h2>
+          <p>Fresh watches, ready to discover.</p>
+        </div>
+        <button class="secondary-button" data-view="watches">View All Watches</button>
+      </div>
+      ${renderProductGrid(newArrivals)}
+    </section>
 
     <section class="home-assurance" aria-label="Wrist Mode shopping benefits">
       <div class="page-shell home-assurance-grid">
