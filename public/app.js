@@ -1447,7 +1447,7 @@ function renderAbout() {
           <p class="muted">We believe an accessory should do more than look good. It should feel like it belongs to the person wearing it or receiving it.</p>
           <div class="button-row"><button class="primary-button" data-view="watches">Shop Watches</button><button class="secondary-button" data-view="customize">Start Custom Order</button></div>
         </div>
-        <img src="/assets/products/custom-jewelry/sept-2026/02-wrist-mode-custom-personalized-bar-necklace-and-pendant-collection-13.jpeg" alt="Wrist Mode personalized jewelry" loading="eager" decoding="async" />
+        <img src="/assets/products/custom-jewelry/photo-pendant-gift-box.jpeg" alt="A personalized photo pendant presented in a gift box" loading="eager" decoding="async" />
       </div>
       <div class="about-principles">
         ${aboutPrinciple("01", "Choose your style", "Browse watches, women gift sets, wooden watches, and ready jewelry.")}
