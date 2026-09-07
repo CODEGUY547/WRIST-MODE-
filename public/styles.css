@@ -225,7 +225,7 @@ img {
   top: 0;
   z-index: 30;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   gap: 1rem;
   align-items: center;
   padding: 0.85rem clamp(1rem, 4vw, 3.8rem);
@@ -280,6 +280,7 @@ img {
 }
 
 .main-nav {
+  grid-column: 2;
   display: flex;
   justify-content: center;
   gap: 0.35rem;
@@ -304,6 +305,7 @@ img {
 }
 
 .header-actions {
+  grid-column: 3;
   display: flex;
   justify-content: flex-end;
   gap: 0.6rem;
@@ -3809,6 +3811,11 @@ textarea:focus {
     grid-template-columns: 1fr auto;
   }
 
+  .header-actions {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
   .custom-studio-intro {
     grid-template-columns: 1fr;
   }
@@ -3825,6 +3832,7 @@ textarea:focus {
 
   .main-nav {
     grid-column: 1 / -1;
+    grid-row: 2;
     justify-content: start;
   }
 
