@@ -1308,7 +1308,6 @@ function renderCustomize() {
           <button class="primary-button bracelet-customize-button" data-open-bracelet-customizer>Customize now</button>
         </div>
       </div>
-      <div class="bracelet-benefits"><span>Live 2D text preview</span><span>Front or back engraving</span><span>Gold, silver, or black</span></div>
     </section>
   `;
 }
@@ -1335,7 +1334,6 @@ function renderVerticalBarCustomize() {
           <button class="primary-button bracelet-customize-button" data-open-bar-customizer>Customize now</button>
         </div>
       </div>
-      <div class="bracelet-benefits"><span>Live 2D text preview</span><span>Front or side engraving</span><span>Gold, silver, or black</span></div>
     </section>
   `;
 }
