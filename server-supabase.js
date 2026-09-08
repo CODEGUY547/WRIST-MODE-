@@ -112,8 +112,10 @@ app.get("/api/products/:id", asyncRoute(async (req, res) => { const product = aw
 app.post("/api/admin/products", requireAdmin, upload.array("images", 6), asyncRoute(async (req, res) => {
   const fallback = { jewelry: "/assets/products/catalog-fill/bar-necklace-trio.png", women: "/assets/products/women-watches/ladies-luxury-full-gift-set-collection-001.jpeg", wooden: "/assets/products/wooden-watches/gold-bamboo-wood-watch.jpeg", watch: "/assets/watch-hero.jpg" };
   const uploaded = await uploadFiles(req.files, PRODUCT_BUCKET);
+  const suppliedImages = jsonValue(req.body.existingImages, []);
   const created = now();
-  const record = { category: req.body.category || "watch", brand: req.body.brand || "Wrist Mode", name: req.body.name || "New Product", price: Number(req.body.price || 0), quantity: Number(req.body.quantity || 0), description: req.body.description || "", specs: normalizeSpecs(req.body), images: uploaded.length ? uploaded : [fallback[req.body.category] || fallback.watch], featured: req.body.featured === "true" || req.body.featured === "on", created_at: created, updated_at: created };
+  const images = uploaded.length ? uploaded : (Array.isArray(suppliedImages) && suppliedImages.length ? suppliedImages : [fallback[req.body.category] || fallback.watch]);
+  const record = { category: req.body.category || "watch", brand: req.body.brand || "Wrist Mode", name: req.body.name || "New Product", price: Number(req.body.price || 0), quantity: Number(req.body.quantity || 0), description: req.body.description || "", specs: normalizeSpecs(req.body), images, featured: req.body.featured === "true" || req.body.featured === "on", created_at: created, updated_at: created };
   const { data, error } = await supabase.from("products").insert(record).select().single(); failIfError(error); res.status(201).json(productFromRow(data));
 }));
 app.put("/api/admin/products/:id", requireAdmin, upload.array("images", 6), asyncRoute(async (req, res) => {
