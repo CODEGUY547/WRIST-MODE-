@@ -510,13 +510,15 @@ function productShareUrl(product) {
 
 function watchInquiryUrl(product) {
   const message = [
-    "Hello Wrist Mode, I would like to inquire about this watch:",
+    "Hello Wrist Mode, I am interested in this watch:",
     `Watch: ${product.name}`,
     `Brand: ${product.brand}`,
     `Product ID: ${productCode(product)}`,
+    `Listed price: ${displayPrice(product)}`,
     `Stock: ${product.stockStatus}`,
     "",
     `Watch picture: ${productShareUrl(product)}`,
+    "Please confirm availability, payment, and delivery details.",
   ].join("\n");
   return `https://wa.me/256750668419?text=${encodeURIComponent(message)}`;
 }
@@ -599,7 +601,7 @@ async function customDashboardPreviewFile(form) {
 
 function inquiryAction(product) {
   if (isWatchInquiry(product)) {
-    return `<a class="primary-button" href="${attr(watchInquiryUrl(product))}" target="_blank" rel="noreferrer">Ask on WhatsApp</a>`;
+    return `<a class="primary-button" href="${attr(watchInquiryUrl(product))}" target="_blank" rel="noreferrer">Enquire on WhatsApp</a>`;
   }
   return `<button class="primary-button" data-view="contact">Enquire</button>`;
 }
@@ -1219,6 +1221,7 @@ function renderProductCard(product) {
   const out = product.stockStatus === "Out of Stock";
   const quoteOnly = Number(product.price || 0) <= 0;
   const readyJewelry = product.category === "jewelry" && product.specs?.collection === "Ready Jewelry";
+  const directInquiry = isWatchInquiry(product);
   return `
     <article class="product-card">
       <div class="product-media">
@@ -1237,7 +1240,7 @@ function renderProductCard(product) {
           ${
             out
               ? `<button class="primary-button" data-open-notify="${product.id}">Notify Me</button>`
-              : quoteOnly
+              : directInquiry || quoteOnly
                 ? inquiryAction(product)
                 : `<button class="primary-button" data-add="${product.id}">Add to Cart</button>`
           }
@@ -1628,7 +1631,7 @@ function openProductModal(productId) {
                     </button>
                   </div>`
                 : `<div class="button-row">
-                    ${out ? `<button class="primary-button" data-open-notify="${product.id}">Notify Me</button>` : quoteOnly ? inquiryAction(product) : `<button class="primary-button" data-add="${product.id}">Add to Cart</button>`}
+                    ${out ? `<button class="primary-button" data-open-notify="${product.id}">Notify Me</button>` : isWatchInquiry(product) || quoteOnly ? inquiryAction(product) : `<button class="primary-button" data-add="${product.id}">Add to Cart</button>`}
                   </div>`
             }
           </div>
