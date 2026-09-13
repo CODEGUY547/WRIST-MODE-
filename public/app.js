@@ -1103,7 +1103,7 @@ function renderWomen() {
           ${sections
             .map((section) => {
               const count = products.filter((product) => womenCollection(product) === section.collection).length;
-              return `<a href="#${collectionId(section.collection)}"><strong>${section.title}</strong><span>${count} ${count === 1 ? "collection" : "collections"}</span></a>`;
+              return `<a href="#women" data-women-section="${collectionId(section.collection)}"><strong>${section.title}</strong><span>${count} ${count === 1 ? "collection" : "collections"}</span></a>`;
             })
             .join("")}
         </div>
@@ -1133,7 +1133,7 @@ function renderWomen() {
 
 function renderWomenLookbookGrid(products) {
   if (!products.length) return `<div class="empty">No women watch styles are available in this section.</div>`;
-  return `<div class="women-look-grid">${products.map(renderWomenLookCard).join("")}</div>`;
+  return `<div class="women-look-grid ${products.length === 1 ? "women-look-grid-single" : ""}">${products.map(renderWomenLookCard).join("")}</div>`;
 }
 
 function renderWomenLookCard(product) {
@@ -2197,6 +2197,12 @@ async function handleSubmit(event) {
 async function handleClick(event) {
   const target = event.target.closest("button, a, [data-modal-close], [data-cart-close]");
   if (!target) return;
+
+  if (target.dataset.womenSection) {
+    event.preventDefault();
+    document.getElementById(target.dataset.womenSection)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
 
   if (target.matches("[data-menu-toggle]")) {
     state.mobileMenuOpen = !state.mobileMenuOpen;
