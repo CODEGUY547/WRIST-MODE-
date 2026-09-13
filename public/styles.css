@@ -4665,6 +4665,14 @@ textarea:focus {
 :root[data-theme="light"] .bracelet-product-options .muted { color: #6f716f; }
 :root[data-theme="light"] .bracelet-benefits span { color: #2a2d31; background: #e8e0d2; }
 :root[data-theme="light"] input, :root[data-theme="light"] select, :root[data-theme="light"] textarea { color: #2a2d31; border-color: rgba(31, 34, 38, 0.24); background: #fffdf8; color-scheme: light; }
+:root[data-theme="light"] .choice-toggle label { color: #2a2d31; border-color: rgba(31, 34, 38, 0.22); background: #eee7dc; }
+:root[data-theme="light"] .choice-toggle label:has(input:checked) { color: #17191d; border-color: #a98238; background: #c9a45a; }
+:root[data-theme="light"] .bracelet-emoji-picker button { color: #2a2d31; border-color: rgba(31, 34, 38, 0.24); background: #eee7dc; }
+:root[data-theme="light"] .bracelet-emoji-picker button.active { color: #17191d; border-color: #a98238; background: #c9a45a; }
+:root[data-theme="light"] .bracelet-modal-note { color: #34373b; background: #eee7dc; }
+:root[data-theme="light"] .bracelet-custom-controls .field small, :root[data-theme="light"] .simple-choice-toggle small, :root[data-theme="light"] .custom-collection-tabs small { color: #6f716f; }
+:root[data-theme="light"] .custom-collection-tabs button { color: #2a2d31; border-color: rgba(31, 34, 38, 0.22); background: #fffdf8; }
+:root[data-theme="light"] .custom-collection-tabs button.active { background: rgba(201, 164, 90, 0.2); }
 
 @media (max-width: 680px) {
   .header-actions .theme-toggle { display: none; }
