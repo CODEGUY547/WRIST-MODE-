@@ -3776,6 +3776,13 @@ textarea:focus {
 .admin-overview-intro { display: flex; justify-content: space-between; gap: 1rem; align-items: end; margin-bottom: 1rem; padding: 1.3rem 1.45rem; border: 1px solid rgba(201, 164, 90, 0.28); background: rgba(201, 164, 90, 0.08); }
 .admin-overview-intro h3 { max-width: 520px; margin: 0.35rem 0 0; font-size: 1.15rem; line-height: 1.45; }
 .admin-best-sellers { margin-top: 1rem; }
+.admin-funnel { margin-top: 1.2rem; padding: 1.25rem 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.admin-funnel-head { display: flex; justify-content: space-between; gap: 1rem; align-items: end; margin-bottom: 0.9rem; }
+.admin-funnel-head h3 { margin: 0.25rem 0 0; font-size: 1.05rem; }
+.admin-funnel-period { color: var(--muted); font-size: 0.78rem; font-weight: 800; white-space: nowrap; }
+.admin-funnel-stages { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.65rem; }
+.admin-funnel-stages .metric { min-height: 104px; padding: 0.85rem; box-shadow: none; }
+.admin-funnel-note { margin: 0.9rem 0 0; color: var(--muted); font-size: 0.85rem; }
 .admin-product-form { padding: 0; overflow: hidden; }
 .admin-form-heading { display: flex; justify-content: space-between; gap: 1rem; align-items: start; padding: 1.35rem 1.35rem 1.1rem; border-bottom: 1px solid var(--line); }
 .admin-form-heading h3, .admin-list-head h3 { margin: 0.28rem 0 0; }
@@ -3802,6 +3809,8 @@ textarea:focus {
 
 @media (max-width: 760px) {
   .admin-page-head, .admin-overview-intro, .admin-list-head { align-items: start; flex-direction: column; }
+  .admin-funnel-head { align-items: start; flex-direction: column; }
+  .admin-funnel-stages { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .admin-tabs { position: static; overflow-x: auto; flex-wrap: nowrap; }
   .admin-tabs button { flex: 0 0 auto; }
   .admin-form-heading, .admin-form-section { padding-right: 1rem; padding-left: 1rem; }

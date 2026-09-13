@@ -48,3 +48,5 @@ npm run catalog:import-watch-photos
 ## Production Notes
 
 Payment and customer notification buttons are wired as provider-ready placeholders. Connect MTN Mobile Money, Airtel Money, card payments, email, SMS, or WhatsApp Business using provider credentials before accepting live online payments.
+
+For the private customer-journey dashboard, run `supabase/analytics.sql` once in the Supabase SQL Editor. It stores anonymous session activity for visits, product views, cart additions, checkout starts, and orders.

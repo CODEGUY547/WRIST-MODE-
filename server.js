@@ -195,6 +195,30 @@ function createNotification(type, recipient, channel, message) {
   );
 }
 
+const analyticsEventTypes = new Set(["visit", "product_view", "add_to_cart", "checkout_started", "purchase"]);
+
+function analyticsEvent(body = {}) {
+  const eventType = String(body.eventType || "");
+  const sessionId = String(body.sessionId || "").replace(/[^a-zA-Z0-9-]/g, "").slice(0, 80);
+  if (!analyticsEventTypes.has(eventType) || sessionId.length < 12) return null;
+  const productId = Number(body.productId);
+  return {
+    sessionId,
+    eventType,
+    productId: Number.isInteger(productId) && productId > 0 ? productId : null,
+    page: String(body.page || "").slice(0, 40),
+    createdAt: now(),
+  };
+}
+
+function recordAnalyticsEvent(event) {
+  if (!event) return;
+  db.run(
+    "INSERT INTO analytics_events (session_id, event_type, product_id, page, created_at) VALUES (?, ?, ?, ?, ?)",
+    [event.sessionId, event.eventType, event.productId, event.page, event.createdAt],
+  );
+}
+
 function notifyStockWatchers(product, eventName) {
   const alerts = query("SELECT * FROM stock_alerts WHERE product_id = ? AND active = 1", [product.id]);
   const message =
@@ -593,6 +617,15 @@ function migrate() {
       status TEXT NOT NULL,
       created_at TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS analytics_events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      session_id TEXT NOT NULL,
+      event_type TEXT NOT NULL,
+      product_id INTEGER,
+      page TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL
+    );
   `);
 
   const count = get("SELECT COUNT(*) AS count FROM products").count;
@@ -777,6 +810,17 @@ app.post("/api/stock-alerts", (req, res) => {
   res.status(201).json({ ok: true, message: "We will notify you when stock changes." });
 });
 
+app.post("/api/analytics/events", (req, res) => {
+  const event = analyticsEvent(req.body);
+  if (!event) {
+    res.status(400).json({ error: "Invalid analytics event." });
+    return;
+  }
+  recordAnalyticsEvent(event);
+  saveDb();
+  res.status(201).json({ ok: true });
+});
+
 app.post("/api/orders", (req, res) => {
   const items = Array.isArray(req.body.items) ? req.body.items : [];
   if (!items.length) {
@@ -835,6 +879,7 @@ app.post("/api/orders", (req, res) => {
 
   createNotification("Order", "Admin", "Dashboard", `New standard order ${receipt} received from ${customer.name || "a customer"}.`);
   createNotification("Order", customer.email || customer.phone || "Customer", customer.email ? "Email" : "WhatsApp", `Your Wrist Mode order ${receipt} is confirmed.`);
+  recordAnalyticsEvent(analyticsEvent({ ...req.body.analytics, eventType: "purchase" }));
   saveDb();
   res.status(201).json({ ok: true, receipt, total, status: "Confirmed" });
 });
@@ -915,6 +960,11 @@ app.get("/api/admin/analytics", requireAdmin, (req, res) => {
     .slice(0, 5)
     .map(([name, quantity]) => ({ name, quantity }));
 
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const events = query("SELECT session_id, event_type FROM analytics_events WHERE created_at >= ?", [since]);
+  const eventCount = (type) => events.filter((event) => event.event_type === type).length;
+  const visitors = new Set(events.filter((event) => event.event_type === "visit").map((event) => event.session_id)).size;
+
   res.json({
     totalProducts: products.length,
     totalOrders: orders.length,
@@ -923,6 +973,14 @@ app.get("/api/admin/analytics", requireAdmin, (req, res) => {
     lowStock: products.filter((product) => product.quantity > 0 && product.quantity <= 3).length,
     outOfStock: products.filter((product) => product.quantity <= 0).length,
     bestSelling,
+    trackingActive: true,
+    funnel: {
+      visitors,
+      productViews: eventCount("product_view"),
+      cartAdditions: eventCount("add_to_cart"),
+      checkoutStarts: eventCount("checkout_started"),
+      purchases: eventCount("purchase"),
+    },
   });
 });
 

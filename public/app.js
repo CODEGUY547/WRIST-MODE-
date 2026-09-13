@@ -459,6 +459,25 @@ async function request(url, options = {}) {
   return data;
 }
 
+function analyticsSessionId() {
+  const key = "wm_analytics_session";
+  let sessionId = sessionStorage.getItem(key);
+  if (!sessionId) {
+    sessionId = crypto.randomUUID ? crypto.randomUUID() : `wm-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    sessionStorage.setItem(key, sessionId);
+  }
+  return sessionId;
+}
+
+function trackAnalytics(eventType, { productId = null } = {}) {
+  fetch("/api/analytics/events", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ eventType, productId, page: state.view, sessionId: analyticsSessionId() }),
+    keepalive: true,
+  }).catch(() => {});
+}
+
 function toast(message) {
   toastEl.textContent = message;
   toastEl.classList.add("show");
@@ -1567,6 +1586,7 @@ function renderCart() {
 function openProductModal(productId) {
   const product = state.products.find((item) => item.id === Number(productId));
   if (!product) return;
+  trackAnalytics("product_view", { productId: product.id });
   const specs = Object.entries(product.specs || {});
   const out = product.stockStatus === "Out of Stock";
   const quoteOnly = Number(product.price || 0) <= 0;
@@ -1789,6 +1809,7 @@ function addToCart(productId) {
     state.cart.push({ productId: product.id, quantity: 1 });
   }
   saveCart();
+  trackAnalytics("add_to_cart", { productId: product.id });
   toast(`${product.name} added to cart.`);
 }
 
@@ -1848,6 +1869,10 @@ function renderAdminTab() {
 
 function renderAdminOverview() {
   const data = state.admin.analytics || {};
+  const funnel = data.funnel || {};
+  const visitors = Number(funnel.visitors || 0);
+  const purchases = Number(funnel.purchases || 0);
+  const conversion = visitors ? ((purchases / visitors) * 100).toFixed(1) : "0.0";
   return `
     <div class="admin-overview-intro">
       <div><p class="eyebrow">Today at Wrist Mode</p><h3>Keep every order, product, and personal request moving.</h3></div>
@@ -1861,6 +1886,20 @@ function renderAdminOverview() {
       ${metric("Low Stock", data.lowStock)}
       ${metric("Out of Stock", data.outOfStock)}
     </div>
+    <section class="admin-funnel" aria-labelledby="customerJourneyTitle">
+      <div class="admin-funnel-head">
+        <div><p class="eyebrow">Customer journey</p><h3 id="customerJourneyTitle">See where customers move forward</h3></div>
+        <span class="admin-funnel-period">Last 30 days</span>
+      </div>
+      <div class="admin-funnel-stages">
+        ${metric("Visitors", visitors)}
+        ${metric("Product Views", funnel.productViews)}
+        ${metric("Added to Cart", funnel.cartAdditions)}
+        ${metric("Checkout Started", funnel.checkoutStarts)}
+        ${metric("Orders", purchases)}
+      </div>
+      <p class="admin-funnel-note">${data.trackingActive ? `${conversion}% of visitors placed an order in this period.` : "Tracking will begin after the analytics database setup is completed."}</p>
+    </section>
     <div class="surface admin-best-sellers">
       <p class="eyebrow">Best sellers</p>
       ${
@@ -2141,7 +2180,9 @@ async function handleSubmit(event) {
         email: form.email.value,
         address: form.address.value,
       },
+      analytics: { sessionId: analyticsSessionId(), page: state.view },
     };
+    trackAnalytics("checkout_started");
     const result = await request("/api/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -2514,6 +2555,7 @@ window.addEventListener("popstate", () => {
     await Promise.all([refreshProducts(), checkAdminSession()]);
     if (state.admin.isAdmin) await loadAdminData();
     render();
+    if (state.view !== "admin") trackAnalytics("visit");
   } catch (error) {
     appEl.innerHTML = `<section class="page-shell"><div class="empty">${escapeHtml(error.message)}</div></section>`;
   }
