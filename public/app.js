@@ -1048,6 +1048,12 @@ function collectionId(value) {
   return `women-${String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`;
 }
 
+function womenCollection(product) {
+  const name = `${product.name || ""} ${product.description || ""}`.toLowerCase();
+  if (/\b(pair|couple)\b/.test(name)) return "Watch Pairs";
+  return product.specs?.collection || "Plain Watches";
+}
+
 function renderWomen() {
   const products = state.products.filter((product) => product.category === "women");
   const sections = [
@@ -1064,15 +1070,21 @@ function renderWomen() {
       image: "/assets/products/women-watches/rose-gold-bracelet-watch-sets-003.jpeg",
     },
     {
+      collection: "Watch Pairs",
+      title: "Watch Pairs",
+      copy: "Matched watch pairs presented together for couples, gifts, or a coordinated look.",
+      image: "/assets/products/women-watches/classic-watch-pair-sets-050.jpeg",
+    },
+    {
       collection: "Plain Watches",
       title: "Plain Women Watches",
-      copy: "Clean ladies watches without jewelry extras, including metal, leather strap, and paired watch options.",
+      copy: "Clean ladies watches without jewelry extras, including metal and leather-strap styles.",
       image: "/assets/products/women-watches/plain-ladies-watch-collection-006.jpeg",
     },
   ];
 
   const featuredImages = sections
-    .filter((section) => products.some((product) => product.specs?.collection === section.collection))
+    .filter((section) => products.some((product) => womenCollection(product) === section.collection))
     .map((section) => `<img src="${attr(section.image)}" alt="${attr(section.title)}" loading="lazy" decoding="async" />`)
     .join("");
 
@@ -1081,8 +1093,8 @@ function renderWomen() {
       <div class="section-head">
         <div>
           <p class="eyebrow">Women watches</p>
-          <h2>Gift Sets, Bracelet Sets, Plain Styles</h2>
-          <p>Women watches are sorted into clear sections so customers can choose between full gift boxes, watch-and-bracelet sets, and plain watches without scrolling through repeats.</p>
+          <h2>Find the Right Set at a Glance</h2>
+          <p>Browse gift sets, bracelet sets, watch pairs, and plain watches in separate collections.</p>
         </div>
         <a class="primary-button" href="https://wa.me/256750668419" target="_blank" rel="noreferrer">Ask on WhatsApp</a>
       </div>
@@ -1090,8 +1102,8 @@ function renderWomen() {
         <div class="women-collection-nav">
           ${sections
             .map((section) => {
-              const count = products.filter((product) => product.specs?.collection === section.collection).length;
-              return `<a href="#${collectionId(section.collection)}"><strong>${section.title}</strong><span>${count} grouped styles</span></a>`;
+              const count = products.filter((product) => womenCollection(product) === section.collection).length;
+              return `<a href="#${collectionId(section.collection)}"><strong>${section.title}</strong><span>${count} ${count === 1 ? "collection" : "collections"}</span></a>`;
             })
             .join("")}
         </div>
@@ -1099,7 +1111,7 @@ function renderWomen() {
       </div>
       ${sections
         .map((section) => {
-          const sectionProducts = products.filter((product) => product.specs?.collection === section.collection);
+          const sectionProducts = products.filter((product) => womenCollection(product) === section.collection);
           if (!sectionProducts.length) return "";
           return `
             <section class="women-section" id="${collectionId(section.collection)}">
@@ -1127,8 +1139,6 @@ function renderWomenLookbookGrid(products) {
 function renderWomenLookCard(product) {
   const images = imageListFor(product);
   const preview = images[0] || imageFor(product);
-  const shown = images.slice(0, 1);
-  const remaining = Math.max(images.length - shown.length, 0);
   return `
     <article class="women-look-card">
       <div class="women-look-main">
@@ -1137,32 +1147,13 @@ function renderWomenLookCard(product) {
       </div>
       <div class="women-look-body">
         <div>
-          <p class="product-meta">${escapeHtml(product.specs?.collection || product.brand)}</p>
+          <p class="product-meta">${escapeHtml(womenCollection(product))}</p>
           <h3>${escapeHtml(product.name)}</h3>
           <p class="muted">${escapeHtml(product.description)}</p>
         </div>
-        ${
-          images.length > 1
-            ? `<div class="women-option-strip" aria-label="${attr(product.name)} visible options">
-                ${shown
-                  .map(
-                    (image, index) => `<button class="${index === 0 ? "active" : ""}" type="button" data-women-preview="${attr(image)}" data-women-target="${product.id}" aria-label="Show ${attr(product.name)} option ${index + 1}" aria-pressed="${index === 0}">
-                      <img src="${attr(image)}" alt="" loading="lazy" decoding="async" />
-                    </button>`,
-                  )
-                  .join("")}
-                ${
-                  remaining
-                    ? `<button class="women-more-tile" type="button" data-product="${product.id}" aria-label="View ${remaining} more ${attr(product.name)} photos">
-                        <strong>+${remaining}</strong><span>more</span>
-                      </button>`
-                    : ""
-                }
-              </div>`
-            : ""
-        }
+        <p class="women-look-count">${images.length} ${images.length === 1 ? "photo" : "photos"} in this collection</p>
         <div class="button-row">
-          <button class="primary-button" data-product="${product.id}">View All Photos</button>
+          <button class="primary-button" data-product="${product.id}">View Collection</button>
           <a class="secondary-button" href="https://wa.me/256750668419" target="_blank" rel="noreferrer">Ask Price</a>
         </div>
       </div>

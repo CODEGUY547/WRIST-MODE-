@@ -1232,7 +1232,7 @@ textarea:focus {
 
 .women-intro {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
+  grid-template-columns: minmax(260px, 0.8fr) minmax(360px, 1.2fr);
   gap: 1rem;
   align-items: stretch;
 }
@@ -1265,20 +1265,21 @@ textarea:focus {
 }
 
 .women-collection-nav span {
-  color: rgba(251, 250, 245, 0.66);
+  color: var(--muted);
   font-size: 0.9rem;
 }
 
 .women-hero-strip {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(150px, 1fr));
   gap: 0.8rem;
 }
 
 .women-hero-strip img {
   width: 100%;
   height: 100%;
-  min-height: 300px;
+  min-height: 180px;
   object-fit: cover;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1294,7 +1295,7 @@ textarea:focus {
 
 .women-look-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1rem;
 }
 
@@ -1310,14 +1311,14 @@ textarea:focus {
 
 .women-look-main {
   position: relative;
-  min-height: 360px;
+  min-height: 280px;
   background: #0d1412;
 }
 
 .women-look-main img {
   width: 100%;
   height: 100%;
-  min-height: 360px;
+  min-height: 280px;
   object-fit: contain;
   background: radial-gradient(circle at center, rgba(255, 244, 207, 0.08), rgba(0, 0, 0, 0.38));
 }
@@ -1340,10 +1341,21 @@ textarea:focus {
   padding: 1rem;
 }
 
+.women-look-body .muted {
+  color: var(--muted);
+}
+
 .women-option-strip {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(58px, 72px));
   gap: 0.45rem;
+}
+
+.women-look-count {
+  margin: 0;
+  color: var(--gold-light);
+  font-size: 0.82rem;
+  font-weight: 800;
 }
 
 .women-option-strip button {
@@ -3891,7 +3903,6 @@ textarea:focus {
   .split,
   .look-board,
   .women-intro,
-  .women-look-grid,
   .jewelry-spotlight,
   .customizer-studio,
   .custom-showcase,
@@ -3903,6 +3914,16 @@ textarea:focus {
 }
 
 @media (max-width: 680px) {
+  .women-collection-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+
+  .women-collection-nav a {
+    min-height: 78px;
+    padding: 0.8rem;
+  }
+
   .site-header {
     grid-template-columns: auto minmax(0, 1fr) auto;
     gap: 0.65rem;
