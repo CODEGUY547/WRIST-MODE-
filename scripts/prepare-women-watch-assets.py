@@ -4,7 +4,7 @@ import json
 import re
 
 ROOT = Path(r"C:\Users\MAHAD M\Documents\Wrist Mode Website")
-RECORDS_PATH = ROOT / "incoming" / "women-watches-contact-sheets" / "image-records.json"
+DEFAULT_RECORDS_PATH = ROOT / "incoming" / "women-watches-contact-sheets" / "image-records.json"
 MANIFEST_PATH = ROOT / "scripts" / "women-watch-products.json"
 ASSET_DIR = ROOT / "public" / "assets" / "products" / "women-watches"
 
@@ -49,16 +49,23 @@ def enhance(img):
 
 
 def main():
-    records = json.loads(RECORDS_PATH.read_text(encoding="utf-8"))
     manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
-    by_index = {int(record["idx"]): record for record in records}
     ASSET_DIR.mkdir(parents=True, exist_ok=True)
 
     written = []
+    records_by_path = {}
     for group in manifest:
+        records_path = ROOT / group.get("recordsPath", str(DEFAULT_RECORDS_PATH.relative_to(ROOT)))
+        if records_path not in records_by_path:
+            records = json.loads(records_path.read_text(encoding="utf-8"))
+            records_by_path[records_path] = {int(record["idx"]): record for record in records}
+        by_index = records_by_path[records_path]
+        source_indices = group.get("sourceIndices", group["indices"])
+        if len(source_indices) != len(group["indices"]):
+            raise ValueError(f"Source image count does not match asset count for {group['name']}")
         group_slug = slug(group["name"])
-        for idx in group["indices"]:
-            record = by_index[int(idx)]
+        for idx, source_idx in zip(group["indices"], source_indices):
+            record = by_index[int(source_idx)]
             source = Path(record["path"])
             destination = ASSET_DIR / f"{group_slug}-{int(idx):03d}.jpeg"
             with Image.open(source) as original:

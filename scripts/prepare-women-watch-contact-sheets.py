@@ -1,13 +1,11 @@
 from pathlib import Path
+import argparse
 from zipfile import ZipFile
 from PIL import Image, ImageOps, ImageDraw, ImageFont
 import hashlib
 import json
 
 ROOT = Path(r"C:\Users\MAHAD M\Documents\Wrist Mode Website")
-ZIP_PATH = Path(r"C:\Users\MAHAD M\Desktop\WhatsApp Unknown 2026-08-20 at 6.54.17 PM.zip")
-EXTRACT_DIR = ROOT / "incoming" / "women-watches-2026-08-20"
-OUT_DIR = ROOT / "incoming" / "women-watches-contact-sheets"
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp"}
 
 
@@ -26,15 +24,15 @@ def hamming_hex(a, b):
     return bin(int(a, 16) ^ int(b, 16)).count("1")
 
 
-def extract_zip():
-    EXTRACT_DIR.mkdir(parents=True, exist_ok=True)
-    if not any(EXTRACT_DIR.rglob("*")):
-        with ZipFile(ZIP_PATH) as archive:
-            archive.extractall(EXTRACT_DIR)
+def extract_zip(zip_path, extract_dir):
+    extract_dir.mkdir(parents=True, exist_ok=True)
+    if not any(extract_dir.rglob("*")):
+        with ZipFile(zip_path) as archive:
+            archive.extractall(extract_dir)
 
 
-def build_records():
-    files = sorted(path for path in EXTRACT_DIR.rglob("*") if path.suffix.lower() in IMAGE_EXTS)
+def build_records(extract_dir):
+    files = sorted(path for path in extract_dir.rglob("*") if path.suffix.lower() in IMAGE_EXTS)
     records = []
     for idx, path in enumerate(files, 1):
         with Image.open(path) as im:
@@ -70,9 +68,9 @@ def add_clusters(records):
     return clusters
 
 
-def write_sheets(records):
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    for old in OUT_DIR.glob("sheet-*.jpg"):
+def write_sheets(records, out_dir):
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for old in out_dir.glob("sheet-*.jpg"):
         old.unlink()
 
     thumb_w, thumb_h, label_h = 220, 220, 50
@@ -100,25 +98,30 @@ def write_sheets(records):
                 label += f" x{record['cluster_size']}"
             draw.text((x + 8, y + thumb_h + 8), label, fill="#f7d778", font=font)
             draw.text((x + 8, y + thumb_h + 27), record["name"][:32], fill="#ffffff", font=font)
-        sheet_path = OUT_DIR / f"sheet-{sheet_idx:02d}.jpg"
+        sheet_path = out_dir / f"sheet-{sheet_idx:02d}.jpg"
         sheet.save(sheet_path, quality=90)
         sheets.append(str(sheet_path))
     return sheets
 
 
 def main():
-    extract_zip()
-    records = build_records()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("zip_path", type=Path)
+    parser.add_argument("extract_dir", type=Path)
+    parser.add_argument("out_dir", type=Path)
+    args = parser.parse_args()
+    extract_zip(args.zip_path, args.extract_dir)
+    records = build_records(args.extract_dir)
     clusters = add_clusters(records)
-    sheets = write_sheets(records)
-    (OUT_DIR / "image-records.json").write_text(json.dumps(records, indent=2), encoding="utf-8")
+    sheets = write_sheets(records, args.out_dir)
+    (args.out_dir / "image-records.json").write_text(json.dumps(records, indent=2), encoding="utf-8")
     summary = {
         "total_images": len(records),
         "unique_clusters": len(clusters),
         "duplicate_clusters": sum(1 for cluster in clusters if len(cluster) > 1),
         "sheets": sheets,
     }
-    (OUT_DIR / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    (args.out_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     print(json.dumps(summary, indent=2))
 
 

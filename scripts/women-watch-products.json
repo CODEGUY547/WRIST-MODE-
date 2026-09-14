@@ -81,5 +81,96 @@
     "included": "Two watches",
     "description": "Classic paired watch options for customers who want matching or complementary watches.",
     "indices": [50, 55]
+  },
+  {
+    "name": "Women's Signature Jewelry Gift Sets",
+    "collection": "Full Gift Sets",
+    "colorOptions": "Gold, silver, rose gold, black",
+    "included": "Watch, necklace, earrings, and bracelet depending on the set",
+    "description": "Signature women watch gift boxes with coordinated jewelry, ready for a thoughtful present.",
+    "indices": [101, 102, 103, 104, 105, 106],
+    "sourceIndices": [1, 2, 3, 4, 5, 6],
+    "recordsPath": "incoming/women-watches-contact-sheets-2026-09-14/image-records.json",
+    "featured": true
+  },
+  {
+    "name": "Women's Silver Jewelry Gift Sets",
+    "collection": "Full Gift Sets",
+    "colorOptions": "Silver, white, black, rose gold",
+    "included": "Watch, necklace, earrings, and bracelet depending on the set",
+    "description": "Women watch gift sets with a clean silver and neutral-tone finish.",
+    "indices": [107, 108, 109, 110, 111, 112],
+    "sourceIndices": [7, 8, 9, 10, 11, 12],
+    "recordsPath": "incoming/women-watches-contact-sheets-2026-09-14/image-records.json"
+  },
+  {
+    "name": "Women's Gold Jewelry Gift Sets",
+    "collection": "Full Gift Sets",
+    "colorOptions": "Gold, champagne, green, black",
+    "included": "Watch, necklace, earrings, and bracelet depending on the set",
+    "description": "Gold-tone women watch gift boxes with matching jewelry accessories.",
+    "indices": [113, 114, 115, 116, 117, 118],
+    "sourceIndices": [13, 14, 15, 16, 17, 18],
+    "recordsPath": "incoming/women-watches-contact-sheets-2026-09-14/image-records.json"
+  },
+  {
+    "name": "Women's Rose Gold Jewelry Gift Sets",
+    "collection": "Full Gift Sets",
+    "colorOptions": "Rose gold, pink, white, black",
+    "included": "Watch, necklace, earrings, and bracelet depending on the set",
+    "description": "Rose-gold and soft-tone women watch sets in a gift-ready box.",
+    "indices": [119, 120, 121, 122, 123, 124],
+    "sourceIndices": [19, 20, 21, 22, 23, 24],
+    "recordsPath": "incoming/women-watches-contact-sheets-2026-09-14/image-records.json"
+  },
+  {
+    "name": "Women's Classic Jewelry Gift Sets",
+    "collection": "Full Gift Sets",
+    "colorOptions": "Gold, silver, rose gold, black",
+    "included": "Watch, necklace, earrings, and bracelet depending on the set",
+    "description": "Classic women watch-and-jewelry gift boxes with polished matching details.",
+    "indices": [125, 126, 127, 128, 129, 130],
+    "sourceIndices": [25, 26, 27, 28, 29, 30],
+    "recordsPath": "incoming/women-watches-contact-sheets-2026-09-14/image-records.json"
+  },
+  {
+    "name": "Women's Statement Gift Watch Sets",
+    "collection": "Full Gift Sets",
+    "colorOptions": "Black, silver, gold",
+    "included": "Watch and matching jewelry in a presentation box",
+    "description": "Statement watch gift sets with a bolder watch finish and matching accessories.",
+    "indices": [131, 133],
+    "sourceIndices": [31, 33],
+    "recordsPath": "incoming/women-watches-contact-sheets-2026-09-14/image-records.json"
+  },
+  {
+    "name": "Women's Dark Bracelet Watches",
+    "collection": "Plain Watches",
+    "colorOptions": "Black, charcoal, gunmetal",
+    "included": "Watch only",
+    "description": "Dark-tone women bracelet watches with an understated, modern finish.",
+    "indices": [132, 134, 138],
+    "sourceIndices": [32, 34, 38],
+    "recordsPath": "incoming/women-watches-contact-sheets-2026-09-14/image-records.json"
+  },
+  {
+    "name": "Women's Two Tone Dress Watch",
+    "collection": "Plain Watches",
+    "colorOptions": "Two-tone, white dial, silver",
+    "included": "Watch only",
+    "description": "A refined two-tone women watch shown from two angles.",
+    "indices": [135, 136],
+    "sourceIndices": [35, 36],
+    "recordsPath": "incoming/women-watches-contact-sheets-2026-09-14/image-records.json"
+  },
+  {
+    "name": "Women's Dark Leather Strap Watches",
+    "collection": "Plain Watches",
+    "colorOptions": "Black, navy, charcoal",
+    "included": "Watch only",
+    "description": "Dark leather-strap women watches with classic round dials.",
+    "indices": [137, 139],
+    "sourceIndices": [37, 39],
+    "recordsPath": "incoming/women-watches-contact-sheets-2026-09-14/image-records.json"
   }
 ]
