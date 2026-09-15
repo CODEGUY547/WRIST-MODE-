@@ -887,8 +887,9 @@ function startHeroCarousel() {
 }
 
 function renderHome() {
+  const watchCategories = new Set(["watch", "women", "wooden"]);
   const newArrivals = state.products
-    .filter((product) => product.category === "watch")
+    .filter((product) => watchCategories.has(product.category))
     .sort((first, second) => new Date(second.createdAt || 0) - new Date(first.createdAt || 0))
     .slice(0, 4);
 
@@ -900,7 +901,7 @@ function renderHome() {
         <div>
           <p class="eyebrow">Just in</p>
           <h2 id="new-arrivals-title">New Arrivals</h2>
-          <p>Fresh watches, ready to discover.</p>
+          <p>Fresh watches and ladies' sets, ready to discover.</p>
         </div>
         <button class="secondary-button" data-view="watches">View All Watches</button>
       </div>
