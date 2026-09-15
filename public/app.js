@@ -290,6 +290,10 @@ const viewMeta = {
     "Watches | Wrist Mode",
     "Browse Wrist Mode watches by brand, price, and stock availability.",
   ],
+  arrivals: [
+    "New Arrivals | Wrist Mode",
+    "Browse the latest Wrist Mode watches across men, women, and wooden watch collections.",
+  ],
   women: [
     "Women Watches | Wrist Mode",
     "Shop Wrist Mode women watches, bracelet watch sets, full gift sets, and plain ladies watches.",
@@ -410,7 +414,7 @@ const state = {
 
 let heroTimer = null;
 
-const customerViews = new Set(["home", "watches", "women", "wooden", "jewelry", "customize", "about", "contact", "faq"]);
+const customerViews = new Set(["home", "watches", "arrivals", "women", "wooden", "jewelry", "customize", "about", "contact", "faq"]);
 
 function viewFromLocation() {
   const currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
@@ -767,7 +771,7 @@ async function loadAdminData() {
 async function setView(view, { updateHistory = true } = {}) {
   if (!customerViews.has(view) && view !== "admin") view = "home";
   const previousView = state.view;
-  if (view !== state.view && ["watches", "jewelry", "wooden", "women"].includes(view)) state.catalogLimit = 24;
+  if (view !== state.view && ["watches", "arrivals", "jewelry", "wooden", "women"].includes(view)) state.catalogLimit = 24;
   state.view = view;
   state.mobileMenuOpen = false;
   if (view === "admin" && state.admin.isAdmin) await loadAdminData();
@@ -797,6 +801,7 @@ function render() {
   const renderers = {
     home: renderHome,
     watches: () => renderCatalog("watch"),
+    arrivals: renderArrivalCatalog,
     women: renderWomen,
     wooden: () => renderCatalog("wooden"),
     jewelry: renderJewelry,
@@ -887,11 +892,7 @@ function startHeroCarousel() {
 }
 
 function renderHome() {
-  const watchCategories = new Set(["watch", "women", "wooden"]);
-  const newArrivals = state.products
-    .filter((product) => watchCategories.has(product.category))
-    .sort((first, second) => new Date(second.createdAt || 0) - new Date(first.createdAt || 0))
-    .slice(0, 4);
+  const newArrivals = latestWatchArrivals().slice(0, 4);
 
   return `
     ${renderHeroCarousel()}
@@ -903,7 +904,7 @@ function renderHome() {
           <h2 id="new-arrivals-title">New Arrivals</h2>
           <p>Fresh watches and ladies' sets, ready to discover.</p>
         </div>
-        <button class="secondary-button" data-view="watches">View All Watches</button>
+        <button class="secondary-button" data-view="arrivals">View All Watches</button>
       </div>
       ${renderProductGrid(newArrivals)}
     </section>
@@ -956,6 +957,30 @@ function renderHome() {
 
 function homeAssurance(title, copy) {
   return `<article><strong>${escapeHtml(title)}</strong><span>${escapeHtml(copy)}</span></article>`;
+}
+
+function latestWatchArrivals() {
+  const watchCategories = new Set(["watch", "women", "wooden"]);
+  return state.products
+    .filter((product) => watchCategories.has(product.category))
+    .sort((first, second) => new Date(second.createdAt || 0) - new Date(first.createdAt || 0));
+}
+
+function renderArrivalCatalog() {
+  const products = latestWatchArrivals();
+  const visibleProducts = products.slice(0, state.catalogLimit);
+  return `
+    <section class="page-shell">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Just in</p>
+          <h2>New Arrivals</h2>
+          <p>The latest men’s, women’s, and wooden watch collections, newest first.</p>
+        </div>
+      </div>
+      ${renderProductGrid(visibleProducts, products.length)}
+    </section>
+  `;
 }
 
 function directionRow(number, title, copy, view) {
